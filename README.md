@@ -1,2 +1,2 @@
 # iffanimplay
-player and library for IFF ANIM animation format, common on classic Amiga OS
+Player and library for IFF ANIM animation file format, common on classic Amiga OS
