@@ -1,0 +1,2 @@
+Icons originate from from the package "fugue-icons-2.4.3.zip", available at: "http://www.pinvoke.com" (created by Yusuke Kamiyamane)
+released under Creative Commons Attribution 3.0 license: "http://creativecommons.org/licenses/by/3.0/"
