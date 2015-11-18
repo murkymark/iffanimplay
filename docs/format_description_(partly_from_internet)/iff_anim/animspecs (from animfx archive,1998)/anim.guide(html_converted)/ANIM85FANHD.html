@@ -1,0 +1,38 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   ANHD Chunk for method 8
+   -----------------------
+
+The ANHD chunk consists of the following data structure:
+
+   UBYTE operation  The compression method: =8 short/long Vertical Delta mode
+   UBYTE mask       unused
+   UWORD w,h        unused
+   WORD  x,y        unused
+   ULONG abstime    unused
+   ULONG reltime    (timing for frame relative to time previous frame was
+                     displayed - in jiffies (1/60 sec))
+   UBYTE interleave =0 ( <a href="ANHD.html">see ANHD description</a>)
+   UBYTE pad0       unused
+   ULONG bits       32 option bits used by methode=4 and 5. methode 8 uses
+                    only bit #0
+
+                       bit #              set =0               set =1
+                       ===============================================
+                        0               short data           long data
+
+   UBYTE pad[16]    unused
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

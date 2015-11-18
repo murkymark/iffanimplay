@@ -1,0 +1,61 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   DLTA Chunk Format for method 7
+   ------------------------------
+
+The DLTA Chunks of method7 consists of
+
+  - 8 pointers    to opcode lists
+  - 8 pointers    to data lists
+  - data lists    (long/short)
+  - opcode lists  (bytes)
+
+In this method the DLTA Chunk begins with 16 pointers. The first 8
+longwords are pointers to the opcode lists for up to 8 planes. The second
+set of 8 longwords are pointers to the correspondig data lists. If there
+are less than 8 Planes all unused pointers are set to zero.
+
+Compression/decompression is performed on a plane-by-plane basis. The
+following description of the method is similar to Jim Kent's methode 5,
+except that data is stored in a seperated datalist (long or short,
+depending on bit#0 of the ANHD bits) and doesn't follow immediate after the
+opcode.
+
+   In methode 7 the bitplane is splitted into vertical columns. Each column
+   of the bitplane is compressed separately. A 320x200 bitplane would have
+   20 columns of 200 short datas each (or 10 columns of 200 long datas).
+   Each column starts with an op-count followed by a number of ops. If the
+   op-count is zero, that's ok, it just means there's no change in this
+   column from the last frame. The ops are of three classes. The ops refer
+   to a varying amount of data (to fetch from the corresponding datalist)
+   depending on which class:
+      1. Skip ops - this is a byte with the hi bit clear that says how many
+         rows to move the "dest" pointer forward, ie to skip. It is non-zero.
+         Skip ops have no corresponding data-items in the datalist.
+      2. Uniq ops - this is a byte with the hi bit set. The hi bit is masked
+         down and the remainder is a count of the number of data to copy
+         literally from the datalist to the "dest" pointer column. (Each
+         data item to the next destination row) Data items may be long or
+         short organized.
+      3. Same ops - this is a 0 byte followed by a count byte. The count
+         byte says how many rows of the current column are to be set to the
+         same data-item. the data-item (long or short) is fetched from the
+         datalist.
+
+   Do bear in mind that the data is compressed vertically rather than
+   horizontally, so to get to the next address in the destination we have
+   to add the number of bytes per row instead of 2 (or 4)!
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

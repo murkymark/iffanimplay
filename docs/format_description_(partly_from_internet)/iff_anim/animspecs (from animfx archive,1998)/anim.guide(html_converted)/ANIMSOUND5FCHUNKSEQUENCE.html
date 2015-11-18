@@ -1,0 +1,49 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   Chunk Sequence
+   --------------
+
+These method to include a sound into a existing anim is compatible to all
+known IFF-ANIM-formats. Ignoring the differences between the formats, a
+animfile with additional soundchunks could look like this:
+
+   FORM ANIM
+   .  FORM ILBM         first frame
+   .  .  BMHD
+   .  .  SXHD              chunk with all necessairy definitions
+   .  .  SBDY              soundbody with sampledata for the first frame
+   .  .  ANHD
+
+   .  .  CMAP
+   .  .  BODY/DLTA
+   .  FORM ILBM         frame 2
+   .  .  ANHD
+   .  .  SBDY              sampledata for the second frame
+   .  .  DLTA
+   .  FORM ILBM         frame 3
+   .  .  ANHD
+   .  .  SBDY              sampledata for the third frame
+   .  .  DLTA
+
+      * * *
+
+   .  FORM ILBM         last frame
+   .  .  ANHD
+   .  .  SBDY              sampledata for the last frame
+   .  .  SBDY              additional sampledata wich have to be played after
+                           the last frame or while fading to an other screen
+   .  .  DLTA
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

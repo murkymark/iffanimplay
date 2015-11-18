@@ -1,0 +1,45 @@
+###################
+libiffanim
+###################
+
+
+Version: 22-Apr-2008
+Author: Markus Wolf (http://murkymind.de/projects/iffanim/)
+
+
+This is a plattform independent IFF animation file format reader library, written in C++.
+It can be compiled and linked with it's header file to any project. You may also compile it as a separate library
+Read "iffanim.h" for usage and further information.
+
+Following compression modes can be decoded:
+ - 0,5,7,8,74('J')
+ - Compression method 1,2,3,4,6 are not supported because no animation test file could be found yet.
+  -> It will be implemented, if someone provides useable sample animation files.
+ - supports wave tracer ds sound chunks 8/16 bit mono/stereo (-> animation with audio)
+
+
+IFF-ANIM:
+---------
+Developed by Electronic Arts it became a kind of standart on the AMIGA for CEL animations,
+supported by a wide range of graphic software and used in many games.
+
+IFF-ANIM has a delay value for each frame. There is no constant frame rate.
+The minimum delay value is 1/60 second, so When converting it to a constant frame rate format
+choose exactly 60 frames per second (you may loose some frames with less FPS).
+
+Each pixel in the data is a pixel in the output. Consider that the pixel aspect ratio may not be correct for 1:1 pixel aspect ratio screens,
+because the Amiga has video modes with different aspect ratios.
+It's not sure, if an animation was made for a full Amiga screen and the pixel ratio is not stored in a file (A far as I know).
+Therefore the player should provide arbitrary scaling.
+
+
+
+
+!!!! Wanted compression information: !!!!
+
+dctv
+----
+- 24 bit stored with 3 or 4 bits per pixel (so it must be a lossy compression)
+- seems to use special patterns
+- only option yet found is to reverse engineer "dctv.library" in order to get the conversion algorithm
+- some dctv animation files can be found at http://www.aminet.net

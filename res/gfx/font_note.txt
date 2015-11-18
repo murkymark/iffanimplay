@@ -1,0 +1,2 @@
+- Generated from: Bitstream Vera Sans Mono (for license see here: "http://www.gnome.org/fonts/")
+- Slightly modified to remove artifacts

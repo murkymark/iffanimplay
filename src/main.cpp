@@ -51,8 +51,16 @@ main  ->  player(setup gui and call gui::runapp) -> gui(callback upon event)
 
 
 
+
+
+
+
 int main(int argc, char *argv[])
 {
+
+
+
+
 
 	 //init SDL
 /* if(SDL_Init(SDL_INIT_VIDEO) < 0) {
@@ -118,7 +126,7 @@ return 0;
  //run the player
  return animPlayer.init(argc, (const char**)argv);
 
- animPlayer.run();
+ //animPlayer.run();
 }
 
 

@@ -1,0 +1,50 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   Chunk Sequence
+   --------------
+
+Method 7 Anims should use the same Chunk Sequence as methods 1..5.
+Alternativley the first frame may have a DLTA chunk instead of the BODY
+chunk. In that case the DLTA is the difference to a 'black frame'. A player
+has to clear all bitplanes of the first bitmap to zero, and then call his
+DLTA unpack routines for this frame.
+
+   FORM ANIM
+   .  FORM ILBM         first frame
+   .  .  BMHD              normal type IFF data
+   .  .  ANHD              optional animation header chunk for timing of
+                           1st frame.
+   .  .  CMAP
+   .  .  BODY/DLTA         full picture or difference to 'black frame'
+   .  FORM ILBM         frame 2
+   .  .  ANHD              animation header chunk
+   .  .  DLTA              delta mode data
+   .  .  [CMAP]
+   .  FORM ILBM         frame 3
+   .  .  ANHD
+   .  .  DLTA
+   .  .  [CMAP]
+
+
+The initial FORM ILBM can contain all the normal ILBM chunks, such as CRNG,
+etc. The BODY will normally be a standard run-length-encoded data chunk
+(but may be any other legal compression mode as indicated by the BMHD). If
+desired, an ANHD chunk can appear here to provide timing data for the first
+frame. If it is here, the operation field should be =0.
+
+If the initial FORM ILBM uses a DLTA chunk, the ANHD chunk must appear, and
+the operation field must be set to the according anim method.
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

@@ -1,0 +1,475 @@
+@DATABASE CDXL.guide
+@MASTER CDXL.txt
+@$VER 1.0
+@(c) 1996 by Christian Effenberger
+
+@node MAIN "CDXL-Format"
+@toc "CDSF.guide/main"
+@font helvetica.font 13
+@{b}@{fg filltext}
+  C   D   X   L@{fg text}  ·  A N I M A T I O N E N
+@{fg text}
+@{fg filltext}
+        @{"   " link CDX_1}@{fg text} CDXL@{fg filltext} I N F O S
+
+        @{"   " link CDX_2}@{fg text} CDXL@{fg filltext} F O R M A T
+
+        @{"   " link CDX_3}@{fg text} CDXL@{fg filltext} L O A D E R
+
+        @{"   " link CDX_4}@{fg text} CDXL@{fg filltext} S A V E R
+
+        @{"   " link CDX_5}@{fg text} CDXL@{fg filltext} P L A Y E R
+@{ub}@{fg text}
+@endnode
+
+@node CDX_1 "CDXL-Format Infos"
+@{b}CDXL@{fg filltext} I N F O S@{fg text}
+@{ub}@{fg text}
+CDXL-Auflösungs-Kombinationen für unterschiedliche CD-Rom-Laufwerkstypen...
+...jeweils mit 4096 Farben und 12 bis 24 Bildern pro Sekunde.
+
+ 1fach-Speed Laufwerk (150 kB)  -  160x100 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kHz
+ 2fach-Speed Laufwerk (300 kB)  -  224x146 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kHz
+ 3fach-Speed Laufwerk (450 kB)  -  272x170 in HAM6 mit 12 FPS und 8 Bit Mono in 22.05 kHz
+ 4fach-Speed Laufwerk (600 kB)  -  320x200 in HAM6 mit 12 FPS und 8 Bit Mono in 22.05 kHz
+ 6fach-Speed Laufwerk (900 kB)  -  384x240 in HAM6 mit 12 FPS und 8 Bit Stereo in 22.05 kHz
+ 8fach-Speed Laufwerk (1200 kB) -  384x274 in HAM6 mit 15 FPS und 8 Bit Stereo in 22.05 kHz
+10fach-Speed Laufwerk (1500 kB) -  384x274 in HAM6 mit 20 FPS und 8 Bit Stereo in 22.05 kHz
+12fach-Speed Laufwerk (1800 kB) -  384x274 in HAM6 mit 24 FPS und 8 Bit Stereo in 22.05 kHz
+
+
+BEISPIEL für eine Animation mit Sound, die auf jedem Doublespeed
+Cd-Rom-Laufwerk und jedem Amiga flüssig abgespielt werden soll...
+
+                    ABSPIELGESCHWINDIGKEIT: 12 Bilder pro Sekunde
+
+                               CHUNKHEADER:    CXHD=32 bytes
+                                              32*12=384 bytes
+
+                    ABMESSUNGEN DER BILDER: 224x146 in HAM6
+
+                        BERECHNUNGSFORMELN: 224*146=32704 bits
+                                            32704÷8=4088 bytes
+                                             4088*6=24528 bytes
+                                           24528*12=294336 bytes
+                               BILDPALETTE:    CMAP=32 bytes
+                                              32*12=384 bytes
+
+                     SAMPLERATE DES SOUNDS: 8 bit Mono mit 11025 Hertz
+
+                        BERECHNUNGSFORMELN: 11025*8=88200 bits
+                                            88200÷8=11025 bytes
+
+                                CHUNKGRÖßE: 25512 bytes
+                         BERECHNUNGSFORMEL: 24528+32+32+920=25512 bytes
+
+                                 OPTIMIZED: FALSE
+                         BERECHNUNGSFORMEL: 25512÷2048=12.46 Blocks
+
+                     DATENDURCHSATZ HEADER:    384 bytes pro Sekunde
+                     DATENDURCHSATZ   CMAP:    384 bytes pro Sekunde
+                     DATENDURCHSATZ GRAFIK: 294336 bytes pro Sekunde
+                     DATENDURCHSATZ  SOUND:  11025 bytes pro Sekunde
+                     DATENDURCHSATZ    PAD:      0 bytes pro Sekunde
+                                            ------
+                     DATENDURCHSATZ GESAMT: 306129 bytes pro Sekunde
+                                            ~ 299 Kb pro Sekunde
+
+
+In dieser Qualität würden ungefähr 36 Minuten Animation auf eine ISO CD-Rom [640 Mb]
+passen, was ungefähr der Hälfte der Video-CD [MPEG-1 ~ 70 min. in 384x280x24] entspricht.
+Bei einer Abmessung von 320x200 und 22.05 kH Sound, würde mann ein 4fach Speed-Laufwerk
+benötigen und eine CD-Rom hätte für cirka 18 Minuten Animation Platz.
+
+ 1.00-1.0 (300 kB)  -  180x180 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [1:1]
+ 1.13-1.0 (300 kB)  -  192x170 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~9:8
+ 1.22-1.0 (300 kB)  -  200x164 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~5:4]  PAL
+ 1.32-1.0 (300 kB)  -  208x158 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~4:3]  VGA
+ 1.53-1.0 (300 kB)  -  224x146 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~3:2]  NTSC
+ 1.76-1.0 (300 kB)  -  240x136 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~16:9] SUPERMAC
+ 2.00-1.0 (300 kB)  -  256x128 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [2:1]   CINEMA
+ 2.27-1.0 (300 kB)  -  272x120 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~7:3]
+ 2.53-1.0 (300 kB)  -  288x114 in HAM6 mit 12 FPS und 8 Bit Mono in 11.025 kH [~5:2]
+
+
+Zur Optimierung der Datengröße sollte CDXL im Customformat auch Grafik im RunLenght-Format
+beherschen. Dadurch würde sich die Datengröße im Mittel um 40% reduzieren. Daraus resultiert
+bei einem Doublespeed Cd-Rom-Laufwerk nachfolgender Durchsatz:
+
+                    ABSPIELGESCHWINDIGKEIT: 12 Bilder pro Sekunde
+
+                               CHUNKHEADER:    CXHD=32 bytes
+                                              32*12=384 bytes
+
+                    ABMESSUNGEN DER BILDER: 288x180 in HAM6
+
+                        BERECHNUNGSFORMELN: 288*180=51840 bits
+                                            51840÷8=6480 bytes
+                                             6480*6=38880 bytes
+                                     (38880÷100)*60=23328 bytes
+                                           23328*12=279936 bytes
+                               BILDPALETTE:    CMAP=32 bytes
+                                              32*12=384 bytes
+
+                     SAMPLERATE DES SOUNDS: 8 bit Mono mit 22056 Hertz
+
+                        BERECHNUNGSFORMELN: 22056*8=176488 bits
+                                           176488÷8=22056 bytes
+
+                                CHUNKGRÖßE: 25230 bytes
+                         BERECHNUNGSFORMEL: 23328+32+32+1838=25230 bytes
+
+                                 OPTIMIZED: FALSE
+                         BERECHNUNGSFORMEL: 25230÷2048=12.32 Blocks
+
+                     DATENDURCHSATZ HEADER:    384 bytes pro Sekunde
+                     DATENDURCHSATZ   CMAP:    384 bytes pro Sekunde
+                     DATENDURCHSATZ GRAFIK: 279936 bytes pro Sekunde
+                     DATENDURCHSATZ  SOUND:  22056 bytes pro Sekunde
+                     DATENDURCHSATZ    PAD:      0 bytes pro Sekunde
+                                            ------
+                     DATENDURCHSATZ GESAMT: 302760 bytes pro Sekunde
+                                            ~ 296 Kb pro Sekunde
+
+Das zu erreichende Ziel lautet:
+
+    bei maximal 300 kB/Sek. - 320x200 in HAM8 mit 15 FPS und 8 Bit Stereo in 22.05 kH
+    ---------------------------------------------------------------------------------
+
+@endnode
+
+@node CDX_2 "CDXL-Format Beschreibung"
+@{b}CDXL@{fg filltext} F O R M A T@{fg text}
+
+Typenbedeutung:@{ub}
+
+    @{fg filltext}BYTE@{fg text}   8 Bit vorzeichenlose ganze Zahl
+    @{fg filltext}WORD@{fg text}  16 Bit vorzeichenlose ganze Zahl im `Motorola`-Byte-Sex
+    @{fg filltext}LONG@{fg text}  32 Bit vorzeichenlose ganze Zahl im `Motorola`-Byte-Sex
+
+@{b}CDXL-Format Beschreibung@{ub} [CHUNK]
+
+#01 @{fg filltext}BYTE@{fg text}: $00 {0}        [CUSTOM CDXL]
+ or @{fg filltext}BYTE@{fg text}: $01 {1}        [STANDARD CDXL]
+ or @{fg filltext}BYTE@{fg text}: $02 {2}        [SPECIAL CDXL]
+
+Das CDXL-Info-Byte ensteht durch Addition dreier Beschreibungsgruppen:
+
+   #02 @{fg filltext}BYTE@{fg text}: $00 {0}        [RGB]        ...VIDEO ENCODING
+    or @{fg filltext}BYTE@{fg text}: $01 {1}        [HAM]
+    or @{fg filltext}BYTE@{fg text}: $02 {2}        [YUV]
+    or @{fg filltext}BYTE@{fg text}: $03 {3}        [AVM & DCTV]
+plus
+
+   #02 @{fg filltext}BYTE@{fg text}: $00 {0}        [BIT PLANAR] ...PIXEL ORIENTATION
+    or @{fg filltext}BYTE@{fg text}: $20 {32}       [BYTE PLANAR]
+    or @{fg filltext}BYTE@{fg text}: $40 {64}       [CHUNKY]
+    or @{fg filltext}BYTE@{fg text}: $80 {128}      [BIT LINE]
+    or @{fg filltext}BYTE@{fg text}: $C0 {192}      [BYTE LINE]
+plus
+
+   #02 @{fg filltext}BYTE@{fg text}: $00 {0}        [MONO]       ...AUDIO VALUES
+    or @{fg filltext}BYTE@{fg text}: $10 {16}       [STEREO]
+
+#03 @{fg filltext}LONG@{fg text}: $0000295C {10588}    [CURRENT CHUNKSIZE]
+#07 @{fg filltext}LONG@{fg text}: $0000295C {10588}    [PREVIOUS CHUNKSIZE]
+#11 @{fg filltext}LONG@{fg text}: $00000001 {1}        [CURRENT FRAMENUMBER]
+#15 @{fg filltext}WORD@{fg text}: $00CB {203}          [BITMAPWIDTH]
+#17 @{fg filltext}WORD@{fg text}: $005E {94}           [BITMAPHEIGHT]
+#19 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#20 @{fg filltext}BYTE@{fg text}: $04   {4}            [NUMBEROFBITPLANES]
+#21 @{fg filltext}WORD@{fg text}: $0020 {32}           [COLORMAPSIZE]
+#23 @{fg filltext}WORD@{fg text}: $02EC {748}          [RAWSOUNDSIZE]
+#25 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#26 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#27 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#28 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#29 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#30 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#31 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+#32 @{fg filltext}BYTE@{fg text}: $00   {0}            [RESERVED]
+
+@{fg filltext}BYTE@{fg text} #33 - #64 [COLORMAP] ; die Pens sind immer WORT-kodiert mit führenden Nullen
+                            d. h. die Palette ist immer 12 Bit (4096 Farben).
+
+z.B. 0FFF    oder  0E9A
+      |||_15        |||_10          ; RGB_Blau_Anteil (0-15)
+      ||__15        ||__09          ; RGB_Grün_Anteil (0-15)
+      |___15        |___14          ; RGB_Rot_Anteil  (0-15)
+
+@{b}Alle nachfolgenden Daten Sind immer in der Reihenfolge:@{ub}
+
+  BITMAPDATA      [UNCOMPRESSED BODY]
+  SOUNDDATA       [UNCOMPRESSED BODY]
+
+  HEADER
+  COLORMAPDATA
+  BITMAPDATA
+  SOUNDDATA
+
+u.s.w. angeordnet.
+@endnode
+
+@node CDX_3 "CDXL-Format Loader"
+@{b}CDXL@{fg filltext} L O A D E R@{fg text}
+@{ub}@{fg text}
+                              CDXL(TM) LOADER
+                                FOR ASDG'S
+                      ART DEPARTMENT PROFESSIONAL(TM)
+
+THE ART DEPARTMENT PROFESSIONAL MODULES DESCRIBED IN THIS DOCUMENT (AS WELL
+AS  THIS  DOCUMENT ITSELF) ARE PROPRIETARY AND ARE SUBJECT TO PROVISIONS OF
+THE  (1) CDTV(TM) DEVELOPER LICENSE AND (2) THE ART DEPARTMENT PROFESSIONAL
+END-USER SOFTWARE LICENSE AGREEMENT.
+
+---------------------------------------------------------------------------
+
+         NOTE: USE OF THESE MODULES REQUIRES ADPRO 2.1.X OR LATER.
+
+---------------------------------------------------------------------------
+                                The Loader
+
+ THE LOADER REQUIRES "adpro.library" TO BE LOADED IN THE LIBS: DIRECTORY.
+                 THIS IS PERFORMED BY THE INSTALL PROGRAM
+
+The ADPRO CDXL loader can load most of the image types that the CDXL format
+supports.  Specifically it supports 1-8 bit rendered data, HAM and EHB.  It
+also supports 8 bit gray and 24 bit color chunky image data.  It allows you
+to  load  (preserve)  audio  and  pad  data  from existing CDXL files which
+include such information.
+
+The  CDXL  loader is special in that it stays resident after its first use.
+And,  when used from ARexx, it can also keep open the last file used.  This
+allows the loader to process animations extremely quickly.
+
+The  CDXL  Loader  main  window  gives you the number of frames in the CDXL
+file,  and  the number of bytes per frame of audio and pad data.  It allows
+you  to  select which frame to load.
+
+Along  the bottom of the window, "Accept" loads the selected frame.  "Quit"
+,  closes  the  file  and quits the loader (meaning that the loader will be
+removed  from  memory).  Finally, "Cancel", cancels the load but leaves the
+loader resident and the last used CDXL file open.
+
+If the pre-existing CDXL file contains pad and/or audio data, you can choose
+to  load  that data or not.  If loaded, this information will be saved with
+the frame during the next CDXL save provided that the CDXL file being saved
+has  made  provisions for audio and pad data of the same size as the source
+CDXL file.
+
+From AREXX, you interface to the CDXL loader in the following way:
+
+        The general format of the CDXL loader ARexx interface
+        is as follows:
+        LOAD "filename" "framenum" n [CMD] [standard ADPRO C_OPTS]
+
+        where CMD is 0 or more of the following:
+
+                SKIPPAD         do not load pad data
+
+                SKIPAUDIO       do not load audio data
+
+                SKIPVIDEO       do not load video (audio or pad only)
+
+                KEEPOPEN        keep the file open.     SEE NOTE!!!
+
+                CLOSE           close the file, and do nothing else
+
+                QUIT            close the file, and quit (unresident
+                                the loader), do nothing else
+
+                NOPAD           do not convert rendered data to 8 bit
+                                or 24 bit raw
+
+        If you do not specify SKIPPAD or SKIPAUDIO, pad and audio will
+        be loaded, if present.
+
+NOTE:   WHEN YOUR THROUGH WITH A FILE WHICH YOU EXPLICITLY ASKED TO
+        ``KEEPOPEN'',  YOU  MUST REMEMBER TO ISSUE A ``CLOSE'', OR RISK THE
+        FILE STILL BEING OPEN WHEN YOU REBOOT WITH POTENTIALLY HAZARDOUS
+        RESULTS
+@endnode
+
+@node CDX_4 "CDXL-Format Saver"
+@{b}CDXL@{fg filltext} S A V E R@{fg text}
+@{ub}@{fg text}
+                              CDXL(TM) SAVER
+                                FOR ASDG'S
+                      ART DEPARTMENT PROFESSIONAL(TM)
+
+THE ART DEPARTMENT PROFESSIONAL MODULES DESCRIBED IN THIS DOCUMENT (AS WELL
+AS  THIS  DOCUMENT ITSELF) ARE PROPRIETARY AND ARE SUBJECT TO PROVISIONS OF
+THE  (1) CDTV(TM) DEVELOPER LICENSE AND (2) THE ART DEPARTMENT PROFESSIONAL
+END-USER SOFTWARE LICENSE AGREEMENT.
+
+---------------------------------------------------------------------------
+
+         NOTE: USE OF THESE MODULES REQUIRES ADPRO 2.1.X OR LATER.
+
+---------------------------------------------------------------------------
+                                 The SAVER
+
+The  ADPro  CDXL  Saver allows you to create, modify and extend CDXL files.
+It  allows  you  to  specify  the  amount  of  space to leave for audio and
+padding.   It, in conjunction with the CDXL loader, can even be used to copy
+audio and pad data from other CDXL files.
+
+The  saver  may  be  used with 1-8 bit rendered data, HAM and EHB.  It also
+supports 8 bit gray and 24 bit color chunky image data.
+
+The  CDXL  saver  is special in that it stays resident after its first use.
+When used from ARexx, it can keep open the last file used.  This allows the
+saver to process animations extremely quickly.
+
+The CDXL Saver main window shows the number of frames (if any) currently in
+the  CDXL  file,  the amount of pad and audio space, and the type of image.
+If you are creating a new CDXL file, you are allowed to enter the amount of
+pad  and  audio  space,  and  well  as  the  type  of image - either raw or
+rendered.
+
+There are two buttons which allow you to select how to handle audio and pad
+space  in  the  file.  Each button has 3 settings.  "Skip Audio" leaves the
+audio  data  in the file intact, "Zero Audio" clears the audio space, "Keep
+Audio"  saves  the  audio  data  that  the  CDXL  loader  may  have  loaded
+previously.   The  "Keep  Audio"  selection will not appear unless you have
+loaded  Audio  data,  and  it  appropriately sized.  The other button, with
+values  of  "Zero Pad", "Skip Pad" and "Keep Pad" serves the same functions
+for pad data.
+
+Below  the  audio  and pad buttons in the Interleaved/Non-Interleaved image
+button  (this  button is only enabled if you are creating a new CDXL file).
+Beneath  this button is the button which allows you to pick rendered or raw
+data.
+
+If you choose interleaved, and you choose rendered data, then the planes of
+rendered data are interleaved in the file.
+
+If  you choose interleaved, and you choose raw data, then the format of the
+data is interleaved lines of of the three colors, red green blue.
+
+If  you  choose  non-interleaved,  and  you  choose rendered data, then the
+planes of rendered data are saved one at a time.
+
+If  you choose non-interleaved, and you choose raw data, then the format of
+the  data  is  as  triples  of  red,green,blue  bytes  in  a matrix of size
+width*height.
+
+The  three  buttons  along  the  bottom  of  the  window, "Accept", "Quit",
+"Cancel",  respectively saves the selected frame, closes the file and quits
+the  saver,  cancels  the  save  but leaves the saver resident and the file
+open.
+
+You  are  allowed  to  enter  a  frame number one larger than the number of
+frames in the file, thus extending the file by one frame.
+
+
+From AREXX, you interface to the CDXL saver in the following way:
+
+        The general format of the CDXL saver ARexx interface
+        is as follows:
+                SAVE "filename" TYPE framenum n [CMD]
+
+        Where TYPE may be one of
+                RAW             save "raw" image data
+                IMAGE           save "rendered" image data
+
+        where CMD is 0 or more of the following:
+
+                FRAMENUM nn     -1 means append, else must be
+                                1..#of frames+1 in the file
+
+                PADSPACE nn     allows you to pick pad space. If not
+                                creating a file, this number must agree with
+                                the existing padspace in the file.
+
+                                You must also specify SAVEPAD for PADSPACE
+                                to perform its work
+
+                AUDIOSPACE nn   allows you to pick audio space. If not
+                                creating a file, this number must agree
+                                with the existing audiospace in the file
+
+                                You must also specify SAVEAUDIO for AUDIOSPACE
+                                to perform its work
+
+                SKIPPAD         do not save pad data - leave this
+                                frames pad intact
+
+                SAVEPAD         save the loaded pad data into
+                                this frame (sizes must match)
+
+                ZEROPAD         clear the pad space of this frame to zeros
+
+                SKIPAUDIO       do not save audio data - leave this
+                                frames audio intact
+
+                SAVEAUDIO       save the loaded audio data into this
+                                frame (sizes must match)
+
+                ZEROAUDIO       clear the audio space of this frame to zeros
+
+                KEEPOPEN        keep the file open      SEE NOTE!!!
+
+                CLOSE           close the file and do nothing else
+
+                QUIT            close the file, and quit (unresident)
+                                the saver and do nothing else
+
+                INTERLEAVED     use "interleaved" format. If this
+                                word is not present then save noninterleaved.
+
+NOTE:   WHEN YOUR THROUGH WITH A FILE WHICH YOU EXPLICITLY ASKED TO
+        ``KEEPOPEN'',  YOU  MUST REMEMBER TO ISSUE A ``CLOSE'', OR RISK THE
+        FILE STILL BEING OPEN WHEN YOU REBOOT WITH POTENTIALLY HAZARDOUS
+        RESULTS
+@endnode
+
+@node CDX_5 "CDXL-Format Player"
+@{b}CDXL@{fg filltext} P L A Y E R@{fg text}
+@{ub}@{fg text}
+cdgsxl FROM/A,X/K/N,Y/K/N,VOL/K/N,VIEW/S,BLIT/S,BACK/K,MULTIPAL/S,XLSPEED/K/N,NOXLEEC/S,
+XLPAL/S,LACE/S,NONLACE/S,HIRES/S,LORES/S,BOXIT/S,SDBL/S,NTSC/S,PAL/S,DEFMON/S,NOPOINTER/S,
+XLMODEID/S,ENDDELAY/K/N,LOOP/K/N,CDXL/S,DOSXL/S,NOPROMOTE/S,LMBABORT/S,RMBABORT/S,FIREABORT/S,
+MSGPORTNAME/K,HAM/S,NONHAM/S,EHB/S,NONEHB/S,PATCHOPENWB/S
+
+@{b}Introduction:@{ub}
+
+FROM/A          ~ CDXL-File [Path- and/or FileName]
+X/K/N           ~ LeftEdge in Pixel (Default is CENTER)
+Y/K/N           ~ TopEdge in Pixel (Default is CENTER)
+VOL/K/N         ~ SoundVolume [0-64] (Default is 64)
+VIEW/S          ~ Open on View is ON (Default is SCREEN)
+BLIT/S          ~ Blit to Display is ON (Default is NON BLIT)
+BACK/K          ~ BackdropILBM [Path- and/or FileName] (Implies BLIT ON)
+MULTIPAL/S      ~ MultiPalette is ON (Default is FIXED PALETTE)
+XLSPEED/K/N     ~ PlaybackSpeed [1-1000] (Default is 75) {Blocks per Sec. (2048 Bytes)}
+NOXLEEC/S       ~ ErrorCorrection is OFF (Default is ON)
+XLPAL/S         ~ Use CDXLPALETTE (Default is BACKDROPILBMPALETTE if BACK is ON)
+LACE/S          ~ Interlace Display is ON (Default is CDXL- or ILBMSETTING)
+NONLACE/S       ~ NonInterlace Display is ON (Default is CDXL- or ILBMSETTING)
+HIRES/S         ~ Hires Display is ON (Default is CDXL- or ILBMSETTING)
+LORES/S         ~ Lores Display is ON (Default is CDXL- or ILBMSETTING)
+BOXIT/S         ~ Draw a Box in Color 0 around Image (Default is OFF)
+SDBL/S          ~ ScanDoubled Display is USED (Default is CDXL- or ILBMSETTING)
+                  or SizeDoubled... Don`t woory it did not work!
+NTSC/S          ~ NTSC MonitorID is USED (Default is CDXL- or ILBMSETTING)
+PAL/S           ~ PAL MonitorID is USED (Default is CDXL- or ILBMSETTING)
+DEFMON/S        ~ DEFAULT MonitorID is USED (Default is CDXL- or ILBMSETTING)
+NOPOINTER/S     ~ MousePointer is OFF (Default is ON)
+XLMODEID/S      ~ Use CDXLMODEID (Default is BACKDROPILBMMODEID if BACK is ON)
+ENDDELAY/K/N    ~ In Frames [n] per Second (PAL Default 50 FPS, NTSC Default 60 FPS)
+LOOP/K/N        ~ Number of PlayLoops [1-???|-1~Infinite] (Default is 1)
+CDXL/S          ~ cd.device or cdtv.device is USED (Default is ON)
+DOSXL/S         ~ Current DOSdevice is USED (Default is OFF)
+NOPROMOTE/S     ~ NOPROMOTION of ModeID is ON (Default is OFF)
+LMBABORT/S      ~ LeftMouseButtonAbort is ON (Default is OFF)
+RMBABORT/S      ~ RightMouseButtonAbort is ON (Default is OFF)
+FIREABORT/S     ~ JoystickFireButtonAbort is ON (Default is OFF)
+HAM/S           ~ HAM Display is ON (Default is CDXL- or ILBMSETTING)
+NONHAM/S        ~ NONHAM Display is ON (Default is CDXL- or ILBMSETTING)
+EHB/S           ~ EHB Display is ON (Default is CDXL- or ILBMSETTING)
+NONEHB/S        ~ NONEHB Display is ON (Default is CDXL- or ILBMSETTING)
+PATCHOPENWB/S   ~ Force OpenWorkbench() is OFF (Default is ON)
+MSGPORTNAME/K   ~ MessagePort is ON [Name] (Default is OFF)
+@endnode
+

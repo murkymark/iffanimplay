@@ -1,0 +1,12 @@
+Description of directories:
+
+- directories tagged with "temporary" can be emptied for cleaning up
+
+
+bin: output dir for compiled binaries (temporary)
+docs: documents related to this project
+lib: output dir for built libraries (temporary)
+obj: output dir for object and dependency files (temporary)
+src: source code for "iffanimplay" and libraries
+src_file2array: source code of helper tool "file2array"
+src_res: generated source code, output of "file2array", included by the player source code, *.c and *.h file can be regenerated (temporary)

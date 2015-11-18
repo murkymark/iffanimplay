@@ -49,6 +49,8 @@ AnimPlayer::~AnimPlayer()
   
  if(gui != NULL)
    delete gui;
+ 
+ SDL_Quit(); //call after gui is destroyed
 }
 
 
@@ -82,7 +84,7 @@ int AnimPlayer::PrintHelp()
 int AnimPlayer::PrintInfo()
 {
  cout << "IFF-Anim and CDXL player | " << IFFANIMPLAY_VERSION << " | "<< IFFANIMPLAY_AUTHOR << endl;
- cout << "Use parameter --h or -help to print help" << endl;
+ cout << "Use option --h or -help to print help (iffanimplay "" -h)" << endl;
 }
 
 
@@ -120,13 +122,29 @@ int AnimPlayer::mkfname(int val, int ndigits, char* fname, const char* prefix, c
 
 
 
-
-
+/******************************************************************************/
+bool AnimPlayer::ToggleLoop(){
+	if(loop){
+		loop = false;
+		return loop;
+	}
+	else{
+		loop = true;
+		if(ended)
+			ended = false;
+		return loop;
+	}
+}
 
 
 /******************************************************************************/
 void AnimPlayer::Scale(SDL_Surface* src, SDL_Surface* dst)
 {
+ if(src == NULL ||  dst == NULL) {
+   cerr << "Scale error: Invalid surface pointer" << endl;
+   return;
+ }
+
  SDL_LockSurface(src);
  SDL_LockSurface(dst);
  
@@ -137,7 +155,7 @@ void AnimPlayer::Scale(SDL_Surface* src, SDL_Surface* dst)
  else if(bpp == 24)
    ScaleBitmap24((char*)dst->pixels, dst->w, dst->h, dst->pitch, (char*)src->pixels, src->w, src->h, src->pitch);
  else
-   cerr << "No scaling function for " << bpp << " bit format" << endl;
+   cerr << "Scale error: No scaling function for " << bpp << " bit format" << endl;
 
  SDL_UnlockSurface(src);
  SDL_UnlockSurface(dst);
@@ -150,6 +168,12 @@ void AnimPlayer::UpdateCaption()
  char strbuf[1000];
  static const char window_prefix[] = "IffAnimPlay";
  const char* state;
+
+ //if no file loaded
+ if(ftype == IFFANIMPLAY_FT_NONE) {
+   SDL_WM_SetCaption(window_prefix, NULL);
+   return;
+ }
 
  //determine state
  if(ended  &&  qframes == 1)
@@ -247,7 +271,7 @@ int AnimPlayer::Extract(char* outpath)
    SDL_Event event;
    while(SDL_PollEvent(&event)) {
      if((event.type == SDL_KEYDOWN  &&  SDLK_ESCAPE)  ||  (event.type == SDL_QUIT)) {
-       cout << "Exctraction aborted" << endl;
+       cout << "Extraction aborted" << endl;
        ended = true;
      }
    }
@@ -348,14 +372,15 @@ bool AnimPlayer::openFile(int argc, const char *argv[]){
 
 
 /******************************************************************************/
-// main function
+//initialize
+//call only once at the start
 int AnimPlayer::init(int argc, const char** argv)
 {
  //prevent double init
  if(init_done)
    return 0;
 
- ::system_init();	//system specific init
+ ::system_init();   //system specific init
  playerPtr = this;
 
  if(argc <= 1) {
@@ -393,8 +418,6 @@ int AnimPlayer::init(int argc, const char** argv)
  loopanim = false;
  fixtime = false;
 
- dispimg = NULL;
-
  const SDL_VideoInfo* info = SDL_GetVideoInfo();   //before any SDL screen is opened this gives us the the desktop screen format
  if(info != NULL) cout << "Player bits per pixel (desktop): " << (int)(info->vfmt->BitsPerPixel) << endl;
 
@@ -422,7 +445,7 @@ int AnimPlayer::init(int argc, const char** argv)
 // SDL_Surface s_dummy;
  
  if(gui == NULL){
-   //executeable path needed to load GUI gfx
+   //executeable path needed to load GUI gfx if not in CWD
    string exepath = argv[0];
    size_t pos;
    //convert all '\\' to '/'
@@ -440,11 +463,14 @@ int AnimPlayer::init(int argc, const char** argv)
 
  init_done = true;
 
- if(argc > 1) {
+ if(argc > 1  &&  strlen(argv[1]) != 0) {
    //open videofile
-   if(!openFile(argc, argv))
-     return -1;
+   openFile(argc, argv);
  }
+ 
+ //needed for opening gui when starting with closed file
+ w_disp = gui->screen->w;
+ h_disp = gui->screen->h;
  
 cout << "starting app thread" << endl;
  
@@ -453,7 +479,7 @@ cout << "starting app thread" << endl;
 // SDL_Delay(4000);
 // gui->threadAppEnd();
 
-
+ 
  //quit normally
  return 0;
 }
@@ -464,25 +490,43 @@ void AnimPlayer::run(){
 	
 cout << "player run() method called" << endl;
 
+
+ 
 //for debugging
 //ftest.open("acbaudio.raw",ios::out | ios::binary);
 
- if(extract)
-   Extract(extr_path);  //extract video data without playing
- else {
-   Play();
+ int ret = IFFANIMPLAY_NONE;
+ while(1){
+   close_file = false;
+ 
+   if(extract)
+     Extract(extr_path);  //extract video data without playing
+   else if (ftype != IFFANIMPLAY_FT_NONE){ //if decoder open -> file open
+     ret = Play();
+     if(ret == IFFANIMPLAY_QUIT)
+       break;
+     //close file but keep player open
+     cout << "Closing file" << endl;
+     clear();
+     UpdateCaption();
+   }
+   
+   if(!file_to_open.empty()){
+     const char *args[] = {"bla0","bla1"};
+     args[1] = file_to_open.c_str();
+     openFile(2, args);
+     file_to_open.clear();
+   }
+   else {
+     //idle, no file opened
+     ret = Wait(8);
+     if(ret == IFFANIMPLAY_QUIT)
+       break;
+   }
  }
-
 
 //for debugging
 //ftest.close();
-
-
- if(audiodata != NULL)
-   delete[] audiodata;
- QueueFree();
- SDL_Quit();
- DelDecoder();            //close decoder
 }
 
 /******************************************************************************/
@@ -491,7 +535,20 @@ void AnimPlayer::clear(){
    SDL_FreeSurface(dispimg);
    dispimg = NULL;
  }
+ ended = false;
+ DelDecoder();
+ QueueFree();
+ if(gui != NULL)
+   gui->fillRect(NULL, 0, 0, 0); //blank
+ UpdateCaption();
  //close any audio
+ SDL_LockAudio(); //make sure callback is not running
+ SDL_PauseAudio(1);
+ if(audiodata != NULL){
+   delete[] audiodata;
+   audiodata = NULL;
+ }
+ SDL_UnlockAudio();
 }
 
 /******************************************************************************/
@@ -554,7 +611,7 @@ bool AnimPlayer::QueueAddFrame()
 {
  q_init = true;
  if(qframes >= IFFANIMPLAY_QUEUE_MAX) {
-   cout << "Can't load frame, queue is full!\n";
+   cerr << "Can't load frame, queue is full!\n";
    return false;
  }
  if(ended)  //rewind required to start buffering again
@@ -651,6 +708,7 @@ void AnimPlayer::QueueDeleteFrame()
 int AnimPlayer::QueueGetAudio(void* data, streamsize apos, int size)
 {
 #if IFFANIMPLAY_DEBUG
+/*
  cout << ">>audio request: " << apos << " .. " << (apos+size) << endl;   //for debugging
  if(qframes > 0  &&  playAudio) {
    cout << "  audio buffered: " << queue[qh].apos << " .. " << (queue[qt].apos + queue[qt].asize) << " [" << queue[qh].frameno << ".." << queue[qt].frameno << "]" << endl;
@@ -658,6 +716,7 @@ int AnimPlayer::QueueGetAudio(void* data, streamsize apos, int size)
  }
  else
    cout << "  audio buffered: " << "0" << endl;
+*/
 #endif
    
  if(qframes <= 0) {    //no data buffered fill with silence
@@ -747,9 +806,11 @@ int AnimPlayer::QueueGetAudio(void* data, streamsize apos, int size)
    cout << "Audio data requested that is not in buffer anymore. Audio playback lags.\n";
 
 #if IFFANIMPLAY_DEBUG
+/*
  if(copied_n == 0)
    cout << " Either video lags or buffer is too small" << endl;
  cout << ">>valid: " << copied_n << "  presilence: " << pre_silence  <<  "  postsilence: " << post_silence << "    at frame: " << queue[qh].frameno << "  SDL_TICKS: " << SDL_GetTicks() << endl;  //for debugging
+*/
 #endif
  
  
@@ -763,8 +824,9 @@ int AnimPlayer::QueueGetAudio(void* data, streamsize apos, int size)
 
 
 /******************************************************************************/
-void AnimPlayer::Play()
+int AnimPlayer::Play()
 {
+
  //at this point video file is opened
  
  if(dispimg != NULL)
@@ -774,7 +836,7 @@ void AnimPlayer::Play()
  this->dispimg = SDL_CreateRGBSurface(SDL_SWSURFACE, w_disp, h_disp, bpp, RMASK, GMASK, BMASK, 0);
  if(dispimg == NULL) {
    cerr << "Couldn't create surface: " << SDL_GetError() << endl;
-   return;
+   return IFFANIMPLAY_QUIT;
  }
  
  //extend screen size (for GUI)
@@ -813,7 +875,7 @@ void AnimPlayer::Play()
      }
      else {        //start playing
        cout << "SDL audio initialized" << endl;
-       audiodata = new char[IFFANIMPLAY_SMPBUFSIZE * a_frameSize];  //buffer for calback
+       audiodata = new char[IFFANIMPLAY_SMPBUFSIZE * a_frameSize];  //buffer for callback
      }
    }
  }
@@ -830,10 +892,12 @@ void AnimPlayer::Play()
  }
 
 
+
  //playing loop
  QueueFill( minFrameBuf, (int)minAudioBuf );   //prebuffer frames and audio
  if(playAudio) SDL_PauseAudio(0);              //start playing of audio (after prebuffering)
  ResetTimer();  
+ int ret = IFFANIMPLAY_NONE;
 
  while(1)
  {
@@ -850,7 +914,6 @@ void AnimPlayer::Play()
     //blit to screen
     if(gui->screen->format->BitsPerPixel <= 8)
       SDL_SetColors(gui->screen, dispimg->format->palette->colors, 0, 256);    //for 8 bit surfaces: we have 8 bit screen so copy palette before blitting
-
     DrawFrame();
 
     SetLagTime();      //detect lag right after the new frame is displayed => always a bit positive because of scaling and blitting (normally the frame must flip right after the waiting loop => avoid by using a proper double buffer)
@@ -860,10 +923,12 @@ void AnimPlayer::Play()
     //take delay into account when filling buffer
     QueueFill( minFrameBuf, (int)minAudioBuf + (int)(a_srate * a_frameSize * queue[qh].delay));        //make sure we have enough audio data; at least 2 frames are needed => the old + the new (which might not be available anymore)
 
-    int ret = Wait((int)(queue[qh].delay * 1000));     //waits automatically when the last frame is reached and loop is deactivated
-    if(ret == IFFANIMPLAY_QUIT) break;
-
-    if(qframes > 1) QueueDeleteFrame();  //queue must contain at least 1 frame; increases "qh"
+    ret = Wait((int)(queue[qh].delay * 1000));     //waits automatically when the last frame is reached and loop is deactivated
+    if(ret != IFFANIMPLAY_NONE  ||  !file_to_open.empty())
+      break;
+      
+    if(qframes > 1)
+      QueueDeleteFrame();  //queue must contain at least 1 frame; increases "qh"
 
     //if last frame is reached, loop if requested
     if(loop && (queue[qh].frameno == (numframes - 1))) {
@@ -875,6 +940,38 @@ void AnimPlayer::Play()
 
 
  SDL_PauseAudio(1);  //stop audio (callback thread), else the program crashes when "anim" is destructed
+ return ret;
+}
+
+/******************************************************************************/
+bool AnimPlayer::JumpRel(int d){
+	if(d == 0){
+		//display current frame
+		Scale(queue[qh].frame, dispimg);
+		if(gui->screen->format->BitsPerPixel <= 8)
+				SDL_SetColors(gui->screen, dispimg->format->palette->colors, 0, 256);
+		DrawFrame();
+		UpdateCaption();
+		return true;
+	}
+	if(d == 1){
+		if(qframes <= 1)
+			QueueAddFrame();
+		if(qframes > 1) { //the next frame must be in the buffer
+			QueueDeleteFrame();
+			audiopos = queue[qh].apos + queue[qh].asize;  // resync audio with next frame
+			Scale(queue[qh].frame, dispimg);  //scale bitmap (8 or 24 bit), don't blit to screen directly so SDL can convert properly: e.g. color channel order
+
+			//blit to screen
+			if(gui->screen->format->BitsPerPixel <= 8)
+				SDL_SetColors(gui->screen, dispimg->format->palette->colors, 0, 256);    //for 8 bit surfaces: we have 8 bit screen so copy palette before blitting
+			DrawFrame();
+			UpdateCaption();
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 /******************************************************************************/
@@ -960,6 +1057,10 @@ void AnimPlayer::Resize(int w, int h)
 
 }
 
+
+
+
+
 int delayms;
 int delayWaitStart;
 int delayThres;
@@ -967,7 +1068,7 @@ int delayPassed;
 bool stop_wait;
 
 /******************************************************************************/
-// - wait for "delayms" milliseconds
+//wait for "delayms" milliseconds (always waits at least 1 ms)
 // - handle events (user input)
 // - stay in the delay loop when anim has ended or is paused
 int AnimPlayer::Wait(int delayms_)
@@ -987,18 +1088,43 @@ int AnimPlayer::Wait(int delayms_)
  if((ended && qframes == 1)  &&  !(loop)) {
    UpdateCaption();  //to show "ended" status
  }
-
+ else
+   UpdateCaption(); //always update
+ 
  //delay loop
  do
  {
+/*
+//test
+static int i = 0;
+SDL_Rect r = {10,10,100,100};
+gui->fillRect(&r, i*10, i*10, i*10);
+//cout << (int)i << endl;
+i++;
+*/
+if(playing)
+	;//cout << (stop_wait || (ended == true  &&  qframes == 1) || (playing == false) || (delayThres > SDL_GetTicks())) << endl;
+
     gui->eventPoll();
  
     SDL_Delay(1); //sleep a little to relieve CPU usage; a minimum value of 1 ensures the CPU usage is never used up completely by the player (also if "delayms" parameter is "0")
 
-	if(gui->signal_appThreadEnd)
-		return IFFANIMPLAY_QUIT;
+    if(gui->signal_appThreadEnd)
+      return IFFANIMPLAY_QUIT;
+    
+    if(!file_to_open.empty())
+      close_file = true;
+    
+    if(close_file)
+      return IFFANIMPLAY_CLOSE;
+
+
+
+    if(delayThres > SDL_GetTicks())
+       stop_wait = true;
+
    
- } while(!stop_wait || (ended == true  &&  qframes == 1) || (playing == false) || (delayThres > SDL_GetTicks()));
+ } while((ended == true  &&  qframes == 1) || (playing == false) || (delayThres > SDL_GetTicks()));
 
  return IFFANIMPLAY_NONE;
 }
@@ -1064,11 +1190,8 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 					break;
 
 				case SDLK_RIGHT:
-					if(qframes > 1) { //the next frame must be in the buffer
-						audiopos = queue[qh].apos + queue[qh].asize;  // resync audio with next frame
-//					return IFFANIMPLAY_NONE;                      // leave, so the next frame is displayed immidiately
-						stop_wait = true;
-					}
+					if(JumpRel(1))
+						cout << "Stepping forward 1 frame" << endl;
 					break;
 
 				case SDLK_LEFT:
@@ -1076,11 +1199,23 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 						if( Seek( queue[qh].frameno - 1 ) ){
 //						return IFFANIMPLAY_NONE;
 							stop_wait = true;
-						
 						}
 					break;
-          
+
+				case SDLK_c:
+					close_file = true;
+					return;
+					break;
+
+				case SDLK_l:
+					cout << "Loop: " << (ToggleLoop() ? "on" : "off") << endl;
+					break;
+
+				case SDLK_BACKSPACE:
 				case SDLK_r:               // handle reset to first frame; leave on reset and let the main loop load the first frame
+					if(ftype == IFFANIMPLAY_FT_NONE)
+						break;
+					cout << "Rewinding" << endl;
 					SDL_PauseAudio(1);
 					playing = false;         // stop after reset (playing must be enabled manually)
 					framecnt = 0;
@@ -1088,9 +1223,10 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 					Rewind();
 					QueueFree();
 					QueueFill( 1, (int)(minAudioBuf) );   //setup buffer
-					ResetTimer(); 
+					ResetTimer();
+					JumpRel(0);
 //				return IFFANIMPLAY_NONE;
-					stop_wait = true;
+//					stop_wait = true;
 					break;
 			   
 				case SDLK_g:
@@ -1098,7 +1234,7 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 						gui->showGui = false;
 					else
 						gui->showGui = true;
-					gui->myResize(dispimg->w, dispimg->h);
+					gui->myResize(w_disp, h_disp);
 					break;
 			}
 			break; //break SDL_KEYDOWN

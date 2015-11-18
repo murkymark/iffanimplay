@@ -1,0 +1,88 @@
+The following format description is an interpretation of the
+"Delta_J" code from " "xanim2801.tar.gz" (XAnim Revision 2.80.1).
+It is modified by me to draw to a bitplanar frame buffer (BODY data format) instead a
+chunky one, thus it fits better into a decoding pipeline.
+
+See also function "IffAnim::DecodeDeltaJ()" in "iffanim.cpp" (libiffanim) for the algorithm.
+
+
+
+Format description, Delta J
+---------------------------
+
+"Delta J" was created by Eric Graham and is used by his raytracing program
+"Sculpt 3D" ("dilbm", "pilbm") for AMIGA.
+
+An encoded Frame consists of a list of blocks. A block consists of a list of
+groups. A group is a kind of update rectangle in the frame.
+Update an old frame with the group data to get the new frame by using XOR
+operation or by replacement, which is defined in the encoded data. 
+
+
+  Possible values in a block with byte size: (All values are stored in Big Endian byte order.)
+  2 bytes : <type>     block compression type: 0, 1, 2 (others should be handled like type 0)
+  2 bytes : <r_flag>   reversible flag, if set data is must be set with XOR over the old frame data, the old data is overwritten if not set
+  2 bytes : <r_cnt>    row count
+  2 bytes : <b_cnt>    byte count
+  2 bytes : <g_cnt>    group count
+  2 bytes : <offs>     offset in the frame where the data should be placed (top left corner), special format
+  1 byte  : <data>     ???
+
+ block types
+ --------------
+  block type 0
+    <type> == 0
+    - end of list, better don't read any byte further from the chunk => frame finished
+
+  block type 1 (rectangles with width of 8 pixels)
+    read <type> == 1
+    read <b_cnt>
+    read <g_cnt>
+    for each <g_cnt> (... update <b_cnt>*8 pixel)
+      read <offs>
+      for each <b_cnt> (horizontal line)
+        for each bitplane 
+          read <data> (read and apply 8 bit)
+          update framebuffer
+      pad to 16 bit (a group is a multiple of 16 bit)
+ 
+  block type 2 (rectangles with width of <r_cnt>*8 pixels)
+    read <type> == 2
+    read <r_cnt>
+    read <b_cnt>
+    read <g_cnt>
+    for each group
+      read <offs>
+      for each <r_cnt> (row)
+        for each <bitplane>
+          for each <b_cnt> (8 pixels in a row)
+            read <data> (read and apply 8 bit)
+            update framebuffer
+      pad to 16 bit (a group is a multiple of 16 bit)
+ 
+ 
+
+ offset value:
+ -------------
+   - byte offset in a single bitplane, where each bitplane is considered to be separate, not interleaved
+   To jump to the next bitplane in the BODY data, add "(width + 15) / 16 * 2" (width in pixels, rounded up to multiple of 16 bits) to the byte offset
+
+   centered videos (for pixel width < 320 only):
+     Normally the offset value implies you have a frame buffer of 320 pixels (bitplane of 320/8 bytes)
+      get the real line offset by: "offset_j / (320 / 8) * pitch_scanline
+      and the real horiz. byte offset by: "(offset_j % (320/ 8)) - kludge_j"
+      
+     "kludge_j": horizontal correction value
+       To center a video < 320 on a 320 pixel wide screen, start drawing the frame at: "(320 - w) / 2" ("w" is frame width in pixels)
+       To get the horizontal byte offset, use: "kludge_j := (320 - w) / 8 / 2"
+
+   c-code to get the real byte offset in the IFF BODY format:
+     kludge_j := (320 - w) / 8 / 2;          
+     // ... read offset from file ...
+     if (kludge_j)
+       newoffset = ((offset/(320 / 8)) * pitch) + (offset % (320/ 8)) - kludge_j;   //"pitch" is width of scanline in bytes
+     else
+       newoffset = ((offset/planepitch_byte) * pitch) + (offset % planepitch_byte);
+
+   Note: I made test animations with "dilbm" and "pilbm" (from the disk image "Sculpt 3d Anim (19xx)(Misc).adf") with width < 320, the resulting animations
+   didn't use this 320 pixel screen offset, but animation files from aminet.net do, seems like the aminet files are based on a newer version of "Anim j"

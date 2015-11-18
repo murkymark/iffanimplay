@@ -1,0 +1,47 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   Introduction
+   ------------
+
+In 1989, we added support into one of our commercial products to support
+the Haitex X-Specs glasses. This documentation will not go into a detailed
+description of this product. Contact Haitex for more information concerning
+the hardware:
+                           Haitex Resources, Inc.
+                           Post Office Box 20609
+                           Charleston, SC 29413
+                             Voice: (803) 881-7518
+                               Fax: (803) 881-7522
+                           Contact: Shawn Glisson
+
+We found that there was not a supported way to display stereo animations
+using the current IFF ANIM OpCode 5 specification.
+
+Cryogenic supported OpCode 6 as an internal format in our commercial
+programs (see below) and provided Public Domain players. It is our
+intention at this time, to release this format to other developers wishing
+to support stereo animations using this OpCode.
+
+When we first started this project, the current Amiga machines had a 512K
+of CHIP RAM maximum. This caused some memory problems with some of the
+higher resolution stereo animations, since the Quad Buffers were in CHIP RAM
+for our players. It was our intention to attempt to do some memory magic to
+require only two of the four bitmaps to be in CHIP RAM at one time. It was
+our feeling that this would have caused the animations to slow down, due to
+data swapping that may or may not have needed to be done.  By the end of 1989,
+all development had stopped on OpCode 6. This left all buffers in CHIP, and
+the format has remained the same since then.
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

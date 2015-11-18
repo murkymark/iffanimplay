@@ -1,7 +1,26 @@
 # iffanimplay
-Player and library for IFF ANIM animation file format, common on classic Amiga OS
+Player and decoder library for IFF ANIM animation file format, common on classic Amiga OS in the 1990s
 
 Project includes:
- * iffanimplay - video player (uses libSDL 1.2.x, optionally OpenGL, for video and audio )
+ * iffanimplay - video player (uses libSDL 1.2.x for video and audio, OpenGL optionally)
  * libiffanim - library for decoding IFF-ANIM video file format
  * libcdxl - library for decoding CDXL video file format
+
+Notes:
+IFF ANIM is related to IFF ILBM. Pixel data ist stored losslessly in bitplanes.
+The first full frame is typically compressed with a run length encoding while all subsequent frames are stored with one of several delta encoding methods.
+Subsequent frames only store the difference to the previous frame.
+For each frame the time to display is stored with a resolution of 1/60 second.
+
+
+
+Other multiplatform players:
+ ANIMApplet - http://www.randelshofer.ch/animapplet/
+ MultiShow - http://www.randelshofer.ch/multishow/
+
+Programs that export ANIM
+ Deluxe Paint
+ Personal Paint
+ ...
+
+Free animation files are available at http://aminet.net/pix/anim

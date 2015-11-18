@@ -1,0 +1,182 @@
+IFF/ANIM
+Compression Method 101/100 - Short/Long Vertical Mode
+------------------------------------------------------
+
+Supported by Scala Multimedia (since MM200) and InfoChannel software.
+Scripts and animations can be converted to and exported by the utility "AnimLab", that comes as utility tool with the Scala software.
+It seems to be the one and only software that creates ANIM files with that compression.
+(The Scala MM300 manual advises to use ANIM8 instead of ANIM32/ANIM16)
+
+Anim32: compression method 100 - word size in DLTA is 32 bit (not 32 bit graphics)
+Anim16: compression method 101 - word size in DLTA is 16 bit
+
+
+Interlace:
+----------
+Anim32I/Anim16I are interlace versions, where the DLTA frames depict half frames
+If the input has progressive frames, the encoder removes one of each two lines, thus halfing DLTA frame data.
+These formats are for data reduction, meant to be played on interlace screen modes only
+(AnimLab considers "ANHD_reltime" always to be 0) -> to test
+
+ frame 1. full ILBM BODY
+ frame 2. DLTA removes line .. of each two lines
+ frame 3. DLTA removes line .. of each two lines
+ ....
+
+
+
+when converting to full frames, the decoder has to fill the missing lines:
+ Simply double the respective lines after decoding each DLTA.
+ Averaging (blending upper and lower line 50%:50%) is not applicable on indexed color frame buffer.
+
+
+problems!!!:
+width not multiple of 32?
+odd number of lines and interlace?
+Can include script text?
+ILBM/LBM difference?
+
+
+To test!!!:
+-> Animlab seems not able to save Anim32/Anim16 with width not divideable by 32
+Animlab makes the width automatically wider if input file has an unsupported width
+(sometimes it even adds garbage pixels instead of black)
+
+-> dlta and odd line number???
+
+
+
+
+
+ANHD chunk :
+ UBYTE operation   100 or 101
+ ...
+ UBYTE interleave  always 0, also for interlace
+ ULONG bits 
+                                   0   |   1
+                  bit 3  not RLC       | RLC       => always set to 1
+                  bit 4  horizontal    | vertical  => always set to 1
+                  bit 6  non interlace | interlace => set if interlace (ANIM32I,ANIM16I)
+                  (all other flag bits are 0)
+ ...
+
+
+
+Frame buffer:
+-------------
+Other compressions expect the frame buffer in standart bitplanar format with contains the previous frame where we want to apply changes to.
+
+Normally the single destination frame buffer has the layout of an uncompressed IFF/ILBM bitmap:
+line0: plane0 plane1 plane2 ... (interleaved planes per line, each plane segment padded to 16 bit bundary)
+line1: plane0 plane1 plane2 ...
+...
+
+Scala compression assumes there is a separate frame buffer for each bitplane (no interleaved lines).
+
+By extending the given byte offsets from the DLTA data we still can write to a single buffer:
+ 1. divide offset to get the line => y
+ 2. modulo gives the byte of the line => x
+ 3. get new offset: offset = (y * total_line_size) + x + previous_plane_segments_size_in_line
+
+
+(todo: in AIM32 do offsets include 16 bit or 32 bit boundary of above line???)
+
+the frame buffer is modified <data unit> wise, also most DLTA data is stored in <data units>.
+A <data unit> is:
+ 2 bytes for compression 101
+ 4 bytes for compression 100
+
+
+DLTA structure and decompression:
+---------------------------------
+In this method the DLTA Chunk begins with 8 pointers (offset, 4 bytes each) to 8 planes, pointing to an individual op-count.
+The first unused bitplane has pointer == -1. If any pointer == 0, then that
+bitplane is not changed and must be skipped.
+Compression/decompression is performed on a plane-by-plane basis.
+In ANHD chunk must be set flags: RLC, Vertical.
+Flag Interlace is optional, used only for laced animations.
+
+In method 101/100 each bitplane is splitted into vertical columns of <data units>.
+
+Each plane starts with an op-count, with the size of <data unit>, followed by a number of ops.
+This ops are for a single bitplane only and strech over all columns.
+If op-count == 0, then there is no change in this plane.
+
+structure of single op:
+ <data unit>      Op
+ <4 bytes always> Offset
+ <data unit>      Data
+
+
+
+ (array of <data units>, count is absolute value of Op)
+
+ => Next ops follows to the last (use op-count as counter to detect last op for this bitplane)
+
+Op is the count of Data
+
+Offset is the offset from the begining of a bitplane frame buffer in bytes (not including other bitplanes).
+It points to a <data unit> in a column. It must be divisible by the size of <data unit> (else it would cross column boundaries).
+
+
+
+when be copying data words/longs. Count indicates RLE data.
+If positive then repeat <count> times the following single data unit. If negative then copy absolute count data.
+
+If set flag Interlace then compressed are only parity or non parity lines (half frames).
+First frame is a full frame (ILBM BODY), next frames are half frames changed
+with internal double buffer. When parity lines are displayed, then nonparity
+lines are decompressed. Next nonparity lines are displayed. Interlace mode
+must be set. Offset in half frames is pointer from begining the bitplane
+of full frame, but data will copies step 2 lines. In this mode double buffer
+two bitmaps not needed, because decompression works in one bitmap buffer
+like interleave=1.
+
+
+
+To decode the next bitplane use the next pointer from the start of the DLTA chunk.
+
+
+
+
+--------------------------------------------------------------------------------------------------
+Original:
+Decompression algorithm info origins from a member of EAB (English Amiga Board - http://eab.abime.net/).
+(reverse engineering work)
+
+
+
+OpCode 101/100 - Short/Long Vertical Mode:
+""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""""
+In this method the DLTA Chunk begins with 8 pointers to 8 planes.
+The first unused bitplane have pointer = -1. If any pointer = 0, then this
+bitplane no differences. Compression/decompression is performed on a
+plane-by-plane basis. In ANHD chunk must be set flags: RLC, Vertical.
+Flag Interlace is optional, used only for laced animations.
+
+In method 101/100 the bitplane is splitted into vertical columns.
+Each column of the bitplane is compressed separately.
+
+Each plane starts with an op-count followed by a number of ops.
+If the op-count is zero, it means there's no change in this plane from the
+last frame. Op-count is a word for opcode 101, long for opcode 100.
+One op looks like follow:
+
+WORD/LONG	Count
+LONG	Offset
+WORDS/LONGS	Data
+
+For opcode 100 all counts and data are longwords, for 101 are words. Offsets
+are always longs. Offset is pointer from begining the bitplane (in bytes)
+when be copying data words/longs. Count indicates RLE data. If positive then
+repeat count data. If negative then copy absolute count data.
+
+If set flag Interlace then compressed are only parity or non parity lines (half frames).
+First frame is a full frame (ILBM BODY), next frames are half frames changed
+with internal double buffer. When parity lines are displayed, then nonparity
+lines are decompressed. Next nonparity lines are displayed. Interlace mode
+must be set. Offset in half frames is pointer from begining the bitplane
+of full frame, but data will copies step 2 lines. In this mode double buffer
+two bitmaps not needed, because decompression works in one bitmap buffer
+like interleave=1.
+

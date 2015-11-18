@@ -49,7 +49,7 @@ using namespace std;
 void system_init();
 
 //system dependant init
-//call only after window is opened, or resized (may crash otherwise)
+//call only after window is opened (may crash otherwise)
 void system_window_init();
 
 //process system events (drag and drop)

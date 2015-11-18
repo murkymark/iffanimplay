@@ -655,7 +655,7 @@ DEBUG_MSG(printf("-----\n");)
 					dlta.copyFrom32(&d, offs);
 
 					for(; op > 0; op--){
-						fbuf.copyTo32(dstoffs, &d);  //*((int32_t*)(dst + dstoffs)) = *((int32_t*)(data + offs))
+						fbuf.copyTo32(dstoffs, &d);  // *((int32_t*)(dst + dstoffs)) = *((int32_t*)(data + offs))
 						dstoffs += dstpitch;
 						if(interlace)
 							dstoffs += dstpitch;
@@ -696,8 +696,6 @@ DEBUG_MSG(printf("-----\n");)
 							dstoffs += dstpitch;
 					}
 				}
-				
-				
 			
 			}
 			//op == 0 shall not appear, undefined operation -> corrupt data
@@ -706,8 +704,8 @@ DEBUG_MSG(printf("-----\n");)
 				//stop operations of current bitplane here and continue with the next bitplane
 				break; //leave while(opcnt)
 			}
-		
-		opcnt--;
+			
+			opcnt--;
 		} //end while(opcnt)
 	} //end for-each-bitplane
 	
@@ -2151,11 +2149,15 @@ int IffAnim::GetInfo(int* w_, int* h_, int* bpp_, int* nframes_, int* mslentime_
      *nframes_ = nframes;
  }
  
- if(mslentime_!= NULL) {
+ if(mslentime_ != NULL) {
+   int lentime_corrected = lentime;
+   if(lentime == 0  &&  nframes > 1)
+     lentime_corrected = nframes;
+     
    if(loopanim && (nframes >= 4))
-     *mslentime_ = (lentime - frame[0].reltime - frame[1].reltime) * 1000 / 60;
+     *mslentime_ = (lentime_corrected - frame[0].reltime - frame[1].reltime) * 1000 / 60;
    else
-     *mslentime_ = lentime * 1000 / 60;
+     *mslentime_ = lentime_corrected * 1000 / 60;
  }
  
 }
@@ -2165,7 +2167,10 @@ int IffAnim::GetInfo(int* w_, int* h_, int* bpp_, int* nframes_, int* mslentime_
 //return frame delay time in milliseconds
 float IffAnim::GetDelayTime()
 {
- return ((float)frame[frameno].reltime / 60.0);
+ if(lentime == 0  &&  frame[frameno].reltime == 0)
+   return ((float)1 / 60.0); //if all frames have time of 0, report as 1/60 s
+ else
+   return ((float)frame[frameno].reltime / 60.0);
 }
 
 

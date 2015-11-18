@@ -317,11 +317,11 @@ bool CDXL::ReadChunk(cdxl_chunkinfo* info )
    int bitmapsize = info->csizeCur - CDXL_CHUNKHEADSIZE - info->cmapsize - info->audiosize;
    if(bitmapsize != info->bitmapsize) {
      info->bitmapsize = bitmapsize;    //the value indirectly given by the size of the other chunk sections should be more correct (maybe there are padding bytes)
-     printf("Warning, size of bitmap data larger than needed or incorrect chunk size value in header is \n");
+     printf("Warning, size of bitmap data larger than needed or incorrect chunk size value in header\n");
    }
  }
  
- //verify information, if data is illeagal cdxl stream should be closed
+ //verify information, if data is invalid cdxl stream should be closed
  switch(info->type) {
    case CDXL_CUSTOM:
    case CDXL_STANDART:

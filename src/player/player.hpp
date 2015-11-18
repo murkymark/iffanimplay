@@ -26,7 +26,7 @@ Date:    see preprocessor definition below
 #ifndef _player_H_
 #define _player_H_
 
-#define IFFANIMPLAY_VERSION "2015-01-10"
+#define IFFANIMPLAY_VERSION "2015-011-18"
 #define IFFANIMPLAY_AUTHOR  "Markus Wolf (http://murkymind.de)"
 
 #include <iostream>
@@ -64,7 +64,7 @@ using namespace std;
 
 
 #define IFFANIMPLAY_GUISUPPORT 1    //0 = player won't provide a GUI; 1 ) player provides a GUI
-#define IFFANIMPLAY_GUI_GFXPATH "gfx/icons/"  //path to data dir for GUI graphics
+#define IFFANIMPLAY_GUI_GFXPATH "res/gfx/"  //path to data dir for GUI graphics, only used for development version - final release includes graphics in executeable
 
 
 //to distinguish the file formats
@@ -78,8 +78,10 @@ enum enum_fileType {
 #define IFFANIMPLAY_DEBUG 1    //set to 1 to print some messages for debugging
 
 
-#define IFFANIMPLAY_NONE 0     //does nothing
-#define IFFANIMPLAY_QUIT 1     //quit event
+//events - return codes
+#define IFFANIMPLAY_NONE      0  //does nothing
+#define IFFANIMPLAY_QUIT      1  //quit event
+#define IFFANIMPLAY_CLOSE     2  //close file
 
 
 #define IFFANIMPLAY_SMPBUFSIZE   1024*2    //sample buffer in samples (sampleframes), 512 very accurate -> buffer underun on some systems
@@ -113,19 +115,18 @@ class AnimPlayer
 {
  public:
    
-   string fname;
+   string file_to_open;   //name of video file to open/opened
 
    SDL_Surface* dispimg;    //scaled frame (needed because we don't have a scaling function for every possible screen mode; and to automatically convert the data to screen mode by blitting)
 
    bool init_done; //to prevent multiple init()
-
 
    int  numframes;   // number of total frames
 
 
    bool   playAudio;  //"true" if audio data is available; else "false"
    streamsize audiopos;   // current byte position in audio data
-   char*  audiodata;  // audio data SDL gets the audio from in the callback
+   char*  audiodata;  // audio buffer, SDL gets audio from within the callback
 
 //   bool   audioAsync; // depends on decoder, if audio can only be retrieved frame synchron it is set to "false", else "true" -> asynchron audio is used when possible to prevent gaps
 
@@ -174,18 +175,21 @@ class AnimPlayer
  };
 
  public:
-   void Resize(int w, int h);    //resize window
-   int  GetFrameIndex();  //return currently displayed frame index
+   void Resize(int w, int h);  //resize window
+   int  GetFrameIndex();        //return currently displayed frame index
 
-   void Play();                  //playback
+   int Play();                  //playback
+   bool JumpRel(int d = 1);    //jump to frame relative from current and draw
 
+   bool ToggleLoop();  //toggle loop, returns true if loop is enabled
 
 //>>>>>>>> internal methods
  protected:
+   bool close_file;
 
    void UpdateCaption();         //update window title with information
    int  Extract(char* outpath);  //save each frame as bmp file (audio as raw, interleaved data); player window stays open to indicate the extraction Process, window is closed when done
-   int  Wait(int delay);         //event handling, and wait until time has passed for current frame in ms
+   int  Wait(int delay);         //wait (handle events) until time has passed, frees CPU usage
 
    void Scale(SDL_Surface* src, SDL_Surface* dst);  //scales src surface pixel data to dst surface
    
@@ -235,7 +239,7 @@ class AnimPlayer
 
  //>>>>>>>> wrapper functions to access the different decoders (virtual methods would be possible, but means also more complexity => additional wrapper classes)
   enum_fileType ftype;  //file format (indicates responsible decoder)
-  bool  loopanim;       // handles loop animations with the 2 first and 2 last frames beeing the same
+  bool  loopanim;       // handles loop animations with the 2 first and 2 last frames beeing the same -> 2 last frames are skipped (IFF ANIM only)
 
   enum_fileType Open(const char* path);    //try to open a file with available decoders
   void  DelDecoder();            //remove decoder

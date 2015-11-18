@@ -1,0 +1,13 @@
+#Call this makefile first to build and call the helper tool "file2array".
+#It generates needed source code (arrays) from resource files
+
+
+BIN = bin/file2array.exe
+
+
+
+.PHONY: all
+
+all:
+	gcc -static -Wall -g -o $(BIN) src_file2array/file2array.c src_file2array/dict.c
+	$(BIN) -l res/list_file2array  -o src_res/resource

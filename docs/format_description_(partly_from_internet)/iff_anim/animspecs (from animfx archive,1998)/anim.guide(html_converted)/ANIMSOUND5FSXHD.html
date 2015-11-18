@@ -1,0 +1,72 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   SXHD Chunk
+   ----------
+
+This chunk includes all informations about the soundsample. It isn´t
+compatible to the VHDR-chunk in the 8SVX format but its the same like in
+HISX-soundformats of our product WaveTracer®. For more detailed
+informations about these format, its usage and its soundmodes, see the
+original WaveTracer®-Manual and the WaveTracer® Developers-Information.
+
+*  UBYTE SampleDepth  depth of the Sample in unit Bits, most common is 8
+                      but all others from 1 Bit up to 32 Bits are
+                      (theoretical) possible
+*  UBYTE FixedVolume  Amiga-typical unit for playback-volume, 0 is off and
+                      64 is maximum
+*  UBYTE Length       length of a SBDY-chunk of ONE frame. This length is
+                      calculated for a constant playbackspeed. If speed
+                      varies from frame to frame the length of the
+                      SBDY-samplechunk also varies and this value is
+                      invalid and/or set to 0
+   LONG PlayRate      Amiga-typical unit for playback-speed; if you like to
+                      use the duration of sampleplayback for the synchroni-
+                      sation of the anim-playrate or if you use a soundcard,
+                      you better should use "PlayFreq"
+   LONG CompressionMethod   has to be =0 in anims everytime, because the
+                      AnimPlayer became slower and Dolby-Surround®-
+                      informations will be destroyed by all known
+                      compressions
+*  UBYTE UsedChannels Flag for number and type of channels saved in the
+                      SBDY-chunk:
+                          1 - Channel left
+                          2 - Channel right
+                          4 - Channel center
+                      Left and right together or center are supported this
+                      time, but following channels are theoretical also
+                      possible:
+                          8 - Surroundchannel or surround left
+                         16 - Surround right
+                         32 - Subwoofer effectchannel
+*  UBYTE UsedMode     says, wich soundmode has to be used:
+                          1: Mode Mono (center-channel only)
+                          2: Mode Stereo (channels left and right)
+                      Following modes are also possible but not supported
+                      yet:
+                          3 - 3.0 3Channel
+                          4 - 4.0 DTS®-Quadro
+                          5 - 4.0 DolbySurround®
+                          6 - 5.0 DTS® / AC-3®
+                          7 - 5.1 DTS® / AC-3®
+   LONG PlayFreq      play-/samplefrequency, spezifies the correct playspeed
+*  UWORD Loop         Number of loops; says how often anim has to be repeated
+*                     after first playback
+*                     Loop=0 - No loop, leave the anim with the last frame
+*                     Loop&gt;0 - Loop, repeat the anim for "Loop" times
+*                     NOTE: if it is a looped anim, the first two frames
+*                           have been appended to the end of the anim AND
+*                           these frames include sounddata!
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

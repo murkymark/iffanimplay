@@ -4,15 +4,17 @@
 #define _player_gui_H_
 
 class AnimPlayerGui;
+class AnimPlayer;
 
 #include "../gui/gui.hpp"
 #include "player.hpp"
 
 //font related
-#define FONT_FILE "gfx/font.bmp"
+#define FONT_FILE IFFANIMPLAY_GUI_GFXPATH"font.bmp"
 #define GLYPH_W  6
 #define GLYPH_H  12
 #define GLYPH_W_BMP 8  //glyph width in bitmap file
+
 
 
 
@@ -43,7 +45,7 @@ class AnimPlayerGui : public SDLGui
 	//AnimPlayer *p: pointer to player instance
 	AnimPlayerGui(SDL_Surface *screen_, string exepath_, AnimPlayer *p);
 	
-    void setupFont();
+	void setupFont();
 	void render();
 	
 	//resize, incorporate w and h of GUI (input is only w and h from the video display)

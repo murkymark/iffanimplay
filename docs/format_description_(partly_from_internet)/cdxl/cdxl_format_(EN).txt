@@ -1,0 +1,130 @@
+<info from "cdxl.guide" originally partly German>
+
+
+CDXL consists of a simple concatenation of frame chunks:
+
+  HEADER [of frame x]
+  COLORMAPDATA
+  BITMAPDATA   [UNCOMPRESSED BODY]
+  SOUNDDATA    [UNCOMPRESSED BODY]
+
+  HEADER [of frame x+1]
+  ...
+
+
+
+CDXL - Data types
+    BYTE   8 Bit unsigned integer
+    WORD  16 Bit unsigned integer, `Motorola`-Byte-Sex
+    LONG  32 Bit unsigned integer, `Motorola`-Byte-Sex
+
+
+
+[offs: 00..01] Header
+{
+ [offs: 0] BYTE: CDXL-Format description [1 byte]
+  one of the following:
+   0x00   CUSTOM CDXL
+   0x01   STANDARD CDXL
+   0x02   SPECIAL CDXL
+
+
+ [offs: 1] BYTE: The CDXL-Info-Byte emerge by addition (binary OR) of the three description goups
+  video encoding: bit mask 0x03
+   0x00   RGB   [1..8 bits per pixel with palette or higher modes without palette]
+   0x01   HAM   [HAM6 or HAM8]
+   0x02   YUV   [???]
+   0x03   AVM & DCTV  [???]
+  plus
+  Pixel orientation: bit mask 0xE0
+   0x00   BIT PLANAR   [each bit of a pixel on another plane -> standart Amiga hardware related]
+   0x20   BYTE PLANAR  [??? would be only useful for 16 or 24 bits, if it is analogous to BIT PLANAR]
+   0x40   CHUNKY       [all bits of a pixel following one another]
+   0x80   BIT LINE     [???]
+   0xC0   BYTE LINE    [???]
+  plus
+  Audio values: bit mask 0x10
+   0x00   MONO   [8 bit single channel]
+   0x10   STEREO [8 bit 2 channels]
+
+
+ [offs: 02] LONG:  CURRENT CHUNKSIZE (in BYTE, completely with header)
+ [offs: 06] LONG:  PREVIOUS CHUNKSIZE
+ [offs: 10] LONG:  CURRENT FRAMENUMBER
+ [offs: 14] WORD:  BITMAPWIDTH
+ [offs: 16] WORD:  BITMAPHEIGHT
+ [offs: 18] BYTE:  RESERVED
+ [offs: 19] BYTE:  NUMBEROFBITPLANES
+ [offs: 20] WORD:  COLORMAPSIZE
+ [offs: 22] WORD:  RAWSOUNDSIZE
+ [offs: 24..31] BYTEs:  RESERVED
+}
+
+[offs: 32..63] [COLORMAP] ; The pens are always WORD-coded with preceding "0"s
+                            i.e. each color entry has 12 Bit (4096 different colors).
+
+z.B. 0FFF    or    0E9A
+      |||_15        |||_10          ; RGB_blue_component (0..15)
+      ||__15        ||__09          ; RGB_green_component (0..15)
+      |___15        |___14          ; RGB_red_component (0..15)
+
+
+[offs: 64..x] BITMAPDATA (raw)
+
+[offs: x+1..y] SOUNDDATA (raw)
+
+
+
+[offs: y+1]  start of chunk header of next frame
+...
+
+
+
+Note: playback speed is not saved within the file (it might be imaginable that a creation programm may use one of the reserved fields)
+
+
+
+
+Tables (examples)
+-----------------
+Dimension table for different constant playing rates:
+
+At 300 KB/sec. approximately 36 minutes of animation would fit on an ISO CD Rome [ 640 Mb ], which corresponds approximately to half of the video CD [ MPEG-1 ~ 72 min. in 384x280x24 ].
+
+[ 1:1 ] 180x180 in HAM6 with 12 FPS and 8 bits mono in 11.025 kH
+[ 5:4 ] PAL 200x164 in HAM6 with 12 FPS and 8 bits mono in 11.025 kH
+[ 4:3 ] VGA 208x158 in HAM6 with 12 FPS and 8 bits mono in 11.025 kH
+[ 3:2 ] NTSC 224x146 in HAM6 with 12 FPS and 8 bits mono in 11.025 kH
+[ 16:9] PAL+ 240x136 in HAM6 with 12 FPS and 8 bits mono in 11.025 kH
+[ 2:1 ] CINEMA 256x128 in HAM6 with 12 FPS and 8 bits mono in 11.025 kH
+
+
+
+
+CDXL resolution combinations for different CD Rome drive types, in each case with 4096 colours and 12 to 24 pictures per second:
+
+
+1x-Speed drive (150 kB)
+160x100 in HAM6 with 12 FPS and 8 bits mono in 11,025 kHz
+
+2x-Speed drive (300 kB)
+224x146 in HAM6 with 12 FPS and 8 bits mono in 11,025 kHz
+
+3x-Speed drive (450 kB)
+272x170 in HAM6 with 12 FPS and 8 bits mono in 22,05 kHz
+
+4x-Speed drive (600 kB)
+320x200 in HAM6 with 12 FPS and 8 bits mono in 22,05 kHz
+
+6x-Speed drive (900 kB)
+384x240 in HAM6 with 12 FPS and 8 bits stereo in 22,05 kHz
+
+8x-Speed drive (1200 kB)
+384x274 in HAM6 with 15 FPS and 8 bits stereo in 22,05 kHz
+
+10x-Speed drive (1500 kB)
+384x274 in HAM6 with 20 FPS and 8 bits stereo in 22,05 kHz
+
+12x speed drive (1800 kB)
+384x274 in HAM6 with 24 FPS and 8 bits stereo in 22,05 kHz
+

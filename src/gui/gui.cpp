@@ -46,14 +46,41 @@ int ef(const SDL_Event *event){
 //thread starter
 int runAppThread(void *objectRef){
 	
-	//set icon before SDL_SetVideoMode()
-	SDL_WM_SetIcon(SDL_LoadBMP("gfx/icons/icon.bmp"), NULL);
+	SDLGui *o = (SDLGui*)objectRef;  //cast to object
 	
-	
-	SDL_Surface *screen = SDL_SetVideoMode(320, 200, 0, SDL_SWSURFACE | SDL_RESIZABLE);
-	if(screen == NULL) {
-		cerr << "unable to open SDL video surface: " << SDL_GetError() << endl;
+	//load and set application icon
+	SDL_Surface *icon = o->loadImageFile("icon.bmp", false);
+	if(icon != NULL){
+		bool ok = true;
+		#ifdef _WIN32
+			//MS Windows needs exactly 32x32 icon or it shows garbage
+			if(icon->w != 32  ||  icon->h != 32) {
+				cerr << "Can't use icon with " << icon->w << "x" << icon->h << ", MS Windows needs icon dimensions of exactly 32x32" << endl;
+				ok = false;
+			}
+		#endif
+		if(ok){
+			//make sure exe icon has no blank alpha channel -> convert to 24 bit
+			if(icon->format->BitsPerPixel == 32) {
+				SDL_PixelFormat f = *(icon->format);
+				f.BitsPerPixel = 24;
+				f.BytesPerPixel = 3;
+				SDL_Surface *icon1 = SDL_ConvertSurface(icon, &f, 0);
+				SDL_FreeSurface(icon);
+				icon = icon1;
+			}
+			//set icon before SDL_SetVideoMode()!
+			SDL_WM_SetIcon(icon, NULL);
+		}
+		SDL_FreeSurface(icon);
 	}
+	
+	
+	
+	//SDL_Surface *screen = SDL_SetVideoMode(320, 200, 0, SDL_SWSURFACE | SDL_RESIZABLE);
+	//if(screen == NULL) {
+	//	cerr << "unable to open SDL video surface: " << SDL_GetError() << endl;
+	//}
 
 // SDL_SetEventFilter(ef);
 //SDL_Delay(20);
@@ -75,9 +102,6 @@ int runAppThread(void *objectRef){
 //}
 
 
-
-
-	SDLGui *o = (SDLGui*)objectRef;  //cast to object
 	o->threadAppEntry();
 cout << "returning from thread" << endl;
 	return 0;

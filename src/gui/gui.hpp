@@ -84,13 +84,13 @@ using namespace std;
 
 //event filter, handling window resize events (needed for proper resize behavior in Windows)
 int eventFilterResize( const SDL_Event *e );
+
 //thread starter, helper function
 int runAppThread(void *objectRef);
 
 //prototypes
-class AnimPlayer;
 class Button;
-int runGuiThread(void *objectRef);
+//int runGuiThread(void *objectRef);
 
 class SDLGui;
 extern SDLGui *guiPtr; //to access gui class members
@@ -121,7 +121,7 @@ class SDLGuiFont {
 	SDL_Rect glyphRect[256]; //rectangle to cut out glyph from the surface, must be setup manually
 	string name;
 	int const id;		//unique reference id number
-	static int id_count;
+	static int id_count; //initial value doesn't matter
 
 	//constructor
 	// add allocated surface, is then managed by the object
@@ -292,6 +292,14 @@ class SDLGui
 	r.w = 1;
 	r.h = h;
 	SDL_FillRect(s, &r, col);
+ }
+
+ //draw rectangle to screen surface
+ void fillRect(SDL_Rect *rect, Uint8 r, Uint8 g, Uint8 b){
+   if(screen == NULL)
+     return;
+   SDL_FillRect(screen, rect, SDL_MapRGB(screen->format, r, g, b));
+   SDL_Flip(screen);
  }
 
  //fill rectangle with linear interpolated color gradient
@@ -532,38 +540,74 @@ if(0);
 	 lineH(s, rec->x,   rec->y,   rec->w,   light);
 	 lineH(s, rec->x+1, rec->y + rec->h-1, rec->w-1, shadow);
  }
+ 
+ 
+	/// Load image from memory (use SDL_RWops)
+	/// may fail if data has wrong format
+	SDL_Surface *loadImageMem(void *data, int size, bool use_dummy = true){
+		SDL_RWops *file;
+		file = SDL_RWFromMem(data, size);
+		SDL_Surface *image;
+		image = SDL_LoadBMP_RW(file, 1);
+		if(image == NULL)
+			cerr << "Error loading bitmap from adress " << data << endl << SDL_GetError() << endl;
+		return loadImage_helper(image, use_dummy);
+	}
 
+	/// Load image file
+	/// @param path  image file path
+	/// @param use_dummy  if true create and return dummy image if loading failed, else return NULL on failure
+	SDL_Surface *loadImageFile(const char *path, bool use_dummy = true){
+		string p = string(exepath) + "res/gfx/icons/" + path;
+	
+		SDL_RWops *file;
+		file = SDL_RWFromFile(p.c_str(), "r");
+		SDL_Surface *image;
+		image = SDL_LoadBMP_RW(file, 1);
+		if(image == NULL)
+			cerr << "Error loading bitmap: " << p << endl << SDL_GetError() << endl;
+		return loadImage_helper(image, use_dummy);
+	}
 
-
- SDL_Surface *loadIcon(const char *path){
-	string p = string(exepath) + "gfx/icons/" + path;
-	SDL_Surface *icon = SDL_LoadBMP(p.c_str());
-	if (icon == NULL) {
-		cerr << "Error loading bitmap: " << p << endl << SDL_GetError() << endl;
-		//create empty bitmap as dummy
-		icon = SDL_CreateRGBSurface(SDL_SWSURFACE, 8, 8, format.BitsPerPixel, format.Rmask, format.Gmask, format.Bmask, format.Amask);
-		if (icon  == NULL) {
-			cerr << "Error: " << SDL_GetError() << endl;
-			return NULL;
+	//protected
+	//
+	SDL_Surface *loadImage_helper(SDL_Surface *img, bool use_dummy = true){
+		
+		if (img == NULL) {
+			if(use_dummy) {
+				cerr << "Creating bitmap dummy" << endl;
+				//create empty bitmap as dummy (with disabled alpha)
+				img = SDL_CreateRGBSurface(SDL_SWSURFACE, 8, 8, format.BitsPerPixel, format.Rmask, format.Gmask, format.Bmask, 0);
+				if (img  == NULL) {
+					cerr << "Error: " << SDL_GetError() << endl;
+					return NULL;
+				}
+				SDL_FillRect(img, NULL, SDL_MapRGB(&format, 255, 0, 255));  //fill with signal color
+			}
+			else
+				return NULL;
 		}
+		//SDL deactivates alpha channel in BMP surface -> just add the alpha channel mask and it works
+		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+			img->format->Amask = 0x000000ff;
+		#else
+			img->format->Amask = 0xff000000;
+		#endif
+		
+		SDL_Surface *img1 = SDL_DisplayFormatAlpha(img); //convert to display format for speedup
+		if(img1 == NULL) {
+			cerr << "loadImage: Image format conversion failed!" << endl;
+			return img;
+		}
+		if(img->format->BitsPerPixel <= 24) //disable mask, if original has no mask
+			img1->format->Amask = 0;
+		
+		//success
+		SDL_FreeSurface(img);
+		return img1;
 	}
-	//SDL deactivates alpha channel in BMP surface -> just add the alpha channel mask and it works
-	#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-		icon->format->Amask = 0x000000ff;
-	#else
-		icon->format->Amask = 0xff000000;
-	#endif
-	
-	SDL_Surface *icon1 = SDL_DisplayFormatAlpha(icon); //convert to display format for speedup
-	if(icon1 == NULL) {
-		cerr << "GUI image loader: Image format conversion failed!" << endl;
-		return icon;
-	}
-	
-	//success
-	SDL_FreeSurface(icon);
-	return icon1;
- }
+
+
 
 
 

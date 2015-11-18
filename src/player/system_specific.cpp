@@ -22,7 +22,7 @@ void system_init(){
 			#endif
 		#endif
 		*/
-			#endif
+	#endif
 
 }
 
@@ -57,6 +57,8 @@ void system_window_init(){
 if (e.type == SDL_SYSWMEVENT)
   system_event_proc(SDL_SysWMmsg *m, *player)
 */
+
+
 void system_event_proc(SDL_SysWMmsg *m, AnimPlayer *p){
 	//process drag and drop event
 	#if TARGET_OS == WIN
@@ -73,10 +75,8 @@ void system_event_proc(SDL_SysWMmsg *m, AnimPlayer *p){
 			//cout << "File dragged: " << lpszFile << endl;
 			
 			cout << "File dragged!" << endl;
-			const char *args[] = {"bla0","bla1"};
-			args[1] = (const char*)(lpszFile);
-			p->clear();
-			p->openFile(2, args);
+			p->file_to_open = (const char*)(lpszFile);
+
 		}
 
 	#elif TARGET_OS == LINUX

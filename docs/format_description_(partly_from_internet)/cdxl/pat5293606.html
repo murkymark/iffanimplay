@@ -1,0 +1,669 @@
+<html><head><title>U.S. Patent: 5293606 - Apparatus and method for
+transferring interleaved data objects in mass storage devices into
+separate destinations in memory - March 8, 1994</title>
+
+
+<style fprolloverstyle="">A:hover {color: #808000}
+</style></head><body alink="#9f5f9f" bgcolor="#ffffff" link="#0000ff" text="#000000" vlink="#ff0000">
+<p>Back to <a href="http://www.everypatent.com/">EveryPatent.com</a></p>
+<br>
+<a name="top"></a>
+<p></p><center>
+<script type="text/javascript"><!--
+google_ad_client = "pub-5788426211617053";
+google_alternate_ad_url = "http://www.everypatent.com/google_adsense_script.html";
+google_ad_width = 336;
+google_ad_height = 280;
+google_ad_format = "336x280_as";
+google_ad_type = "text_image";
+google_ad_channel ="";
+google_color_border = "FFFFFF";
+google_color_bg = "FFFFFF";
+google_color_link = "0000FF";
+google_color_url = "008000";
+google_color_text = "000000";
+//--></script>
+<script style="display: none;" type="text/javascript" src="pat5293606-Dateien/show_ads.js">
+</script>
+</center><p></p>
+<br>
+<table width="100%">
+<tbody><tr>	<td align="left" width="50%"><b>United States Patent </b></td>
+	<td align="right" width="50%"><b> <b><i>5,293,606</i></b>
+</b></td>
+</tr>
+<tr><td align="left" width="50%"><b>
+ Sassenrath
+ </b>
+<!-- 2: Sassenrath; Carl E.
+,
+,
+,
+<br>Sassenrath, ;, , ,  -->
+</td><td align="right" width="50%"> <b>
+March 8, 1994
+</b></td>
+</tr>
+</tbody></table>
+<hr>
+<font size="+1"> Apparatus and method for transferring interleaved data objects in mass
+     storage devices into separate destinations in memory
+</font><br>
+<br><center><b>Abstract</b></center>
+<p>A system for transferring interleaved data objects in mass storage devices
+     into separate destinations in a system memory is described. The method
+     includes the steps of determining for each of the data objects a
+     destination address and a size; one time seeking of a data object from a
+     location of the mass storage means; transferring data from the data object
+     into the destination address, wherein the data has a size equal to the
+     size for the data object; and repeating the transferring step for
+     subsequent data objects.
+</p>
+<hr>
+  <table width="100%">
+  <tbody><tr><td align="left" valign="top" width="10%">Inventors:
+  </td><td align="left" width="90%">
+  <b>Sassenrath; Carl E.</b> (Ukiah, CA)
+  </td></tr>
+  <tr><td align="left" valign="top" width="10%">Assignee:
+  </td><td align="left" width="90%">
+  <b>Commodore Electronics Limited</b> (Nassau, BS)
+  </td></tr>
+<tr><td align="left" nowrap="nowrap" valign="top" width="10%">Appl. No.:
+</td><td align="left" width="90%">                    
+<b> 679371</b></td></tr>
+  <tr><td align="left" valign="top" width="10%">Filed:
+  </td><td align="left" width="90%">                    
+  <b>April 2, 1991</b></td></tr>
+</tbody></table>
+<p>
+<table width="100%">
+  <tbody><tr><td align="left" valign="top" width="40%"><b>Current U.S. Class:</b></td>
+  <td align="right" valign="top" width="60%"><b>710/33</b>  </td></tr>
+  <tr><td align="left" valign="top" width="40%"><b>Intern'l Class: </b></td>
+  <td align="right" valign="top" width="60%">G06F 012/04</td></tr>
+  <tr><td align="left" valign="top" width="40%"><b>Field of Search: </b></td>
+  <td align="right" valign="top" width="60%">
+  395/400,425
+364/200 MS File,900 MS File
+365/49
+  </td></tr>
+</tbody></table>
+</p><hr><center><b>References Cited</b></center>
+<center><b>U.S. Patent Documents</b></center>
+<table width="100%"><tbody><tr><td width="25%">4665482</td><td width="25%">May., 1987</td><td align="left" width="25%">Murray, Jr. et al.</td><td align="right" width="25%">395/425.
+</td></tr>
+<tr><td width="25%">4896261</td><td width="25%">Jan., 1990</td><td align="left" width="25%">Nolan</td><td align="right" width="25%">395/325.
+</td></tr>
+<tr><td width="25%">4903195</td><td width="25%">Feb., 1990</td><td align="left" width="25%">Homma</td><td align="right" width="25%">395/425.
+</td></tr>
+<tr><td width="25%">4964128</td><td width="25%">Oct., 1990</td><td align="left" width="25%">Sako et al.</td><td align="right" width="25%">371/39.
+</td></tr>
+</tbody></table>
+
+<br>
+  <i>Primary Examiner:</i>  Dixon; Joseph L.
+<br>
+  <i>Assistant Examiner:</i>  Nguyen; Hiep T.
+<br>
+  <i>Attorney, Agent or Firm:</i> Townsend and Townsend Khourie and Crew
+<br>
+<hr>
+<center><b><i>Claims</i></b></center>
+<hr>
+<br><br>What is claimed is:
+<br><br>1. In a computer system having a memory and a optical storage means, said
+     optical storage means interleaving a plurality of data objects into a
+     location and said optical storage means having a plurality of locations
+     sequentially arranged, a method for transferring the data objects into
+     separate destinations in the memory comprising the steps of:
+<br><br>(a) constructing a transfer list having a plurality of nodes, wherein said
+     nodes include size and destination information of the data objects;
+<br><br>(b) seeking once a data object at a location of the optical storage means;
+<br><br>(c) determining from a next node a size and a destination address for the
+     data object; and
+<br><br>(d) transferring data from the data objects into the memory at said
+     destination address, wherein said transferred data has a size equal to the
+     size for the data object.
+<br><br>2. The method of claim 1, wherein said node includes a pointer to a next
+     node in the transfer list, a pointer specifying memory location storing
+     the data from the data object, a length of the data to transfer from the
+     data object, and a length of the data actually transferred from the data
+     object.
+<br><br>3. The method of claim 2, wherein said node further includes a pointer to a
+     callback function.
+<br><br>4. The method of claim 2, wherein step (d) comprises transferring data from
+     the data object into the memory by:
+<br><br>(e) transferring the length of the data object if the next node exists;
+<br><br>(f) reading the next node if the next node does not exist at step (e);
+<br><br>(g) indicating the end of memory access if the next node does not exist at
+     step (f); and
+<br><br>(h) repeating step (e) for remaining data in the data object.
+<br><br>5. The method of claim 2, wherein step (b) comprises seeking a data object
+     at a location of the optical storage means by
+<br><br>determining the length and an offset of the data object; and
+<br><br>sending a read command to the optical storage means.
+<br><br>6. In a computer system having a memory and a mass storage means, said mass
+     storage means interleaving a plurality of data objects into a frame and
+     said mass storage means having a plurality of frames sequentially
+     arranged, a method for transferring interleaved data objects into separate
+     destinations in the memory comprising the steps of:
+<br><br>(a) establishing a transfer list having a plurality of nodes, where each of
+     the nodes includes a size and a destination address for one data object;
+<br><br>(b) seeking once a data object from a frame of the mass storage means;
+<br><br>(c) reading a node from the transfer list; and
+<br><br>(d) transferring data from said one data object to said destination
+     address, wherein said transferred data has a size equal to the size for
+     said one data object.
+<br><br>7. The method of claim 6, further comprising the step of:
+<br><br>(e) repeating steps (c)-(d) for each of said data objects.
+<hr>
+<center><b><i> Description</i></b></center>
+<hr>
+<br><br>COPYRIGHT NOTICE
+<br><br>A portion of the disclosure of this patent document contains material which
+     is subject to copyright protection. The copyright owner has no objection
+     to the facsimile reproduction by anyone of the patent document or the
+     patent disclosure as it appears in the Patent and Trademark Office patent
+     file or records, but otherwise reserves all copyright rights whatsoever.
+<br><br>BACKGROUND OF THE INVENTION
+<br><br>The present invention relates generally to the field of data storage. More
+     particularly, the invention relates to data transfer from computer storage
+     media, such as CD-ROM optical storage disks.
+<br><br>Optical storage media in the form of disks are well known as an alternative
+     to magnetic storage media. The disks, commonly known as "compact disks" or
+     "CD's," have a substrate containing pits for storing data. A pit is about
+     0.5 .mu.m wide, and a disk can hold billions of pits. The pits are aligned
+     in a spiral track similar to the spiral groove in a conventional record.
+     The CD pit track, however, runs from the inside diameter of the disk to
+     the outside.
+<br><br>Information is stored in binary form by the particular arrangement of pits
+     on the plastic substrate. Binary data are encoded in the transitions from
+     the pits and the flat areas ("land") between the pits. The surface is
+     metallized to reflect a laser beam used to read the data.
+<br><br>A specially-designed compact disk player is used to retrieve data stored on
+     a compact disk. The player operates by focusing a laser beam on the
+     reflective metal through a substrate and then detecting the reflected
+     light. The pits increase the optical path of the laser beam by an amount
+     equivalent to one-half wavelength, thereby producing destructive
+     interference when combined with other (non-shifted) reflected beams. Data
+     are read from the disk as a change in intensity of reflected laser light.
+     The reflected light is detected by an optical pick-up or stylus, and the
+     data carried on the beam are converted to digital electrical signals.
+     Further description of the pits and how they function is generally
+     available; see, e.g., Watkinson, The Art of Digital Audio, Focal Press,
+     Chapter 13.
+<br><br>Several different CD formats exist. Perhaps the best known is the
+     CD-Digital Audio (CD-DA) format used for musical recordings. Despite the
+     general association of CD's with music, the media is well suited for other
+     applications. Computer software or other published materials can be stored
+     in a read-only format and delivered as data or video signals in addition
+     to just audio signals.
+<br><br>One such format is CD-ROM which is set forth in Philips/Sony Yellow Book of
+     October 1983. Additional specifications for CD-ROM may be found in the
+     High Sierra specification (from the High Sierra Conference, November 1985)
+     and the more recent ISO (International Standards Organization) 9660
+     format. While the CD-ROM data format is similar to that of CD-Digital
+     Audio, the disks are not compatible. Other popular formats include the
+     CD-I format (Green Book) which is an interactive, multi-media format and
+     the DVI format which stores full-motion video and audio.
+<br><br>The compact disk is a remarkable storage medium capable of holding over
+     half a gigabyte of storage. However, with this massive storage capability
+     comes the increased difficulty of retrieving the data--metaphorically,
+     locating a kilobyte needle in a gigabyte haystack. Particularly, optical
+     disk systems suffer from slower data access, due in large part to the
+     increased time required for seeking out given data (seek time). As a
+     result, data transfer times for optical disks are substantially longer
+     than for their magnetic counterparts.
+<br><br>Several factors contribute to longer seek times. Part of the problem is due
+     to the design of current optical pickups. For example, moving a head mass
+     of 100 g across a disk in 20 ms has proved difficult. Tracking
+     difficulties also increase the access time. Since the track pitch on an
+     optical disk is so small, the servo must be extremely precise. The
+     required precision is more easily achieved at slower disk rotation. Unlike
+     standard LP records, the rotational rate for CD's is radially dependent,
+     thus the drive motor must also change speed during a seek
+     operation--further adding to seek time. With longer seek times and hence
+     total transfer times, current optical disk systems do not provide access
+     to their data on a real-time basis.
+<br><br>While current mass storage media, such as CD-ROM, provide exceptional
+     storage capability, they cannot be thought of as truly random access
+     media. What is needed is a system which improves data transfer for these
+     media. It is particularly desirable to have a system capable of providing
+     full-color video and stereo sound in real-time. The present invention
+     fulfills this and other needs.
+<br><br>SUMMARY OF THE INVENTION
+<br><br>Apparatus and methods for transferring interleaved data objects into
+     separate destinations in memory are described. Recognizing the penalty
+     incurred by seeking, the present invention improves data transfer by
+     minimizing seek time. As much data as possible are read in a single read
+     operation.
+<br><br>One method of the present invention for transferring data objects comprises
+     building a transfer list of nodes, wherein each node has a destination
+     address and a size for one of the data objects; reading a data object from
+     a location of the mass storage means; reading a node from the transfer
+     list; and transferring data from the data object into memory according to
+     the destination address and size specified in the current node.
+<br><br>There are several advantages to using the methods of the present invention.
+     There is complete flexibility in ordering and selecting memory locations
+     for data buffers. Transfer lists can be built anywhere in memory. Because
+     the nodes are linked together at run time, the order of nodes can be
+     created and modified to suit one's particular requirements.
+<br><br>BRIEF DESCRIPTION OF THE DRAWINGS
+<br><br>FIG. 1 is a a block diagram of a computer system in which the present
+     invention may be embodied.
+<br><br>FIG. 2 is a block diagram illustrating the transfer of data via CDXL
+     transfer lists.
+<br><br>FIG. 3 is a flowchart of the CD.sub.-- READXL method.
+<br><br>FIG. 4 is a flowchart of the StartXL method.
+<br><br>FIG. 5 is a flowchart of the StartTransfer method.
+<br><br>FIG. 6 is a flowchart of the StartDMA method.
+<br><br>FIG. 7 is a flowchart of the DMAInterrupt method.
+<br><br>FIG. 8 is a flowchart of the DMATimeout method.
+<br><br>DESCRIPTION OF THE SPECIFIC EMBODIMENTS
+<br><br>Introduction
+<br><br>Data transfer from a compact disk depends on several factors, many of which
+     may be quantified. The total transfer time for a given group of data
+     blocks includes not only the time required to transfer the data into
+     memory (data transfer time), but also the delay incurred in reaching the
+     desired blocks on the disk (seek time). The former depends on the drive's
+     frame rate and the disk's sector size. The latter depends on such factors
+     as head mass and servo accuracy. A frame is the basic unit of data
+     representation. In CD-DA, for example, this would include synchronization,
+     subcode, audio data, and error detection and correction. A sector is a
+     block or frame complete with synchronization and header field; in CD-ROM a
+     sector is a 2352 byte block, 2048 of which is user data. (See, e.g.,
+     Pohlmann, K., The Compact Disk: A Handbook of Theory and Use, Vol. 5, A-R
+     Editions, Inc., 1989.)
+<br><br>The current technology for CD mechanisms offers a frame rate of 75
+     frames/second (f/s)--also the rate required to produce full quality
+     digital audio. The sector size used for holding a frame is approximately
+     2k bytes, but it may be increased when complete error correction is not
+     required. A theoretical data transfer rate can be calculated as follows:
+<br><br>75f/s * 2k/f=150k/s
+<br><br>While CD drive specifications typically list a maximum seek time of 0.8
+     seconds and an average time of 0.5 seconds, the minimum seek time rarely,
+     if ever, approaches zero since the laser is not located where it is
+     needed--directly before the desired starting point.
+<br><br>The total transfer time for a read is calculated by dividing the data
+     transfer rate into the quantity of data and adding the seek time. Thus,
+     for example, the total transfer time for a 48k read with an average seek
+     time would take:
+<br><br>(48k / 150k/s)+0.5s=0.82s
+<br><br>In this case, 61% of the total time is spent in the seek alone.
+<br><br>Seek times may also be conveniently related to data sizes. Thus, an average
+     seek is equivalent to the transfer of:
+<br><br>150k/s * 0.5s=75k
+<br><br>When many such transfers occur, the loss accumulates and greatly degrades
+     the performance of the program. For a program transferring ten full-color
+     video images and 20 seconds of stereo sound, even with the data clustered
+     together to reduce the seek time to 0.25 seconds, a transfer time of 15
+     seconds is required:
+<br><br>Size of each full-color image=48k
+<br><br>Size of each second of stereo sound=32k
+<br><br>((48k / 150k/s)+0.25s) * 10=5.7s
+<br><br>((32k / 150k/s)+0.25s) * 20=9.3s
+<br><br>Total transfer time=15s
+<br><br>Total data transferred=1120k
+<br><br>Total transfer rate=75k/s
+<br><br>In the foregoing example, if a single read were achievable, i.e., only one
+     seek, the transfer rate is effectively doubled (and the transfer time is
+     halved):
+<br><br>(48k / 150k/s) * 10=3.2s
+<br><br>(32k / 150k/s * 20=4.3s
+<br><br>Total transfer time=7.5s+0.5s=8s
+<br><br>Total data transferred=1120k
+<br><br>Total transfer rate=140k/s
+<br><br>This example, of course, requires that the data are organized on sequential
+     sectors of the disk.
+<br><br>A particular problem in prior techniques with eliminating seeks is that
+     programs often need to read several different data objects, e.g.,
+     graphics, sound, music, text, code, etc., into different memory locations.
+     In addition, the data may be of different sizes. One approach would be to
+     read data from the disk into an intermediate memory buffer which is then
+     distributed to other locations. This approach, however, requires moving
+     the data twice; it also requires substantial allocation of memory for
+     intermediate buffers.
+<br><br>Recognizing the penalty incurred by seeking, the present invention improves
+     data transfer by minimizing seek time. As much data as possible are read
+     in a single read operation, even if this includes discarding some of the
+     data. Since the data transfer cost of an average seek is relatively
+     expensive, about 75k, a lot of data can be discarded with little or no
+     penalty.
+<br><br>A Preferred Embodiment
+<br><br>The invention may be embodied on a general purpose digital computer system,
+     such as a computer system 100 of FIG. 1, which comprises a central
+     processor 101, a main memory 102, an input/output controller 103, a
+     display monitor 104, a fixed or hard disk 105, an optical storage or CD
+     drive 106 with removable optical storage media 106a, keyboard 107, Direct
+     Memory Access (DMA) controller 108, and ROM BIOS (Read-only memory, basic
+     input/output service) 109. The various components communicate through a
+     system bus 110 or similar architecture.
+<br><br>In operation, the user enters commands through keyboard 107 and/or other
+     input devices, e.g., a mouse. The computer displays results on display
+     104, such as a cathode ray tube or a printer. In the preferred embodiment,
+     an appropriately programmed Amiga 500 personal computer (Commodore
+     International, West Chester, Pa.) is used.
+<br><br>While a preferred embodiment is described with reference to a particular
+     media, a wide variety of storage media may be employed, including
+     magnetic, optical, optical-magnetic, and flash memory techniques, and the
+     present invention is not limited to any particular technique. Moreover,
+     the present invention is also compatible with virtually any system
+     employing mass storage means where different objects of data can be
+     contiguously or sequentially arranged (interleaved). Of particular
+     interest to the present invention, though, are optical storage media which
+     are compromised by slow data transfer, such as CD-ROM and WORM (write
+     once, read many).
+<br><br>According to the present invention, methods are provided which distribute
+     data objects into multiple memory locations. The data objects can be any
+     desired information. Furthermore, they need not be homologous, i.e., they
+     may be different information contents such as audio and video information.
+     As illustrated in FIG. 2, a transfer list (CDXL List) 160 is constructed
+     which controls data "de-interleaving" and "scattering." Data objects of
+     any length and any category or group can be read (de-interleaved) from
+     media 106a, e.g., CD-ROM 150,  and placed (scattered) anywhere in memory
+     102 with a single high-speed DMA transfer. For example, software, audio,
+     graphics, and text data objects are stored together as a group. Transfer
+     lists of the present invention allow developers to specify the size and
+     placement of data during a continuous read operation. Lists may be
+     constructed in advance, at runtime, or even during a read operation.
+     During data transfer, each data object is extracted and scattered to its
+     appropriate destination in memory without using intermediate buffers.
+<br><br>In a preferred embodiment, system 100 is provided with a special disk
+     reading means or device driver having a disk reading method or
+     program--CD.sub.-- READXL. The device driver may be embodied in ROM 109
+     and/or embodied on storage media, e.g., disk 105 or optical storage media
+     106a.
+<br><br>CD.sub.-- READXL begins a read operation from the drive by seeking to the
+     desired source location. Unlike ordinary read techniques, however, once
+     the data are ready CD.sub.-- READXL determines the destination(s) for the
+     data by traversing the transfer list. The transfer list is a linked list
+     comprising a standard Amiga Exec style MinList that contains any number of
+     separate MinNodes describing the transfer of data. Amega Exec (the kernel
+     of the Amiga operating system) and the operation of MinLists and MinNodes
+     are described in Amiga ROM Kernel Reference Manual: Includes and Autodocs,
+     Addison Wesley, 1989, and Amiga ROM Kernel Reference Manual: Library and
+     Devices, Addison Wesley, 1990, the disclosures of which are hereby
+     incorporated by reference. For an overview of Amiga Exec, MinLists, and
+     MinNodes, see Holloway, T., The Object-Oriented Amiga Exec, BYTE, January
+     1991, pp. 329-334, provided hereinbelow as Appendix B.
+<br><br>The operation of CD.sub.-- READXL and CDXL transfer lists will now be
+     described in detail.
+<br><br>1. Data Structures
+<br><br>CD.sub.-- READXL employs the following I/0 request field format:
+<br><br>ior.io.sub.-- Command=CD.sub.-- READXL;
+<br><br>ior.io.sub.-- Offset=SectorNumber;
+<br><br>ior.io.sub.-- Length=SectorCount;
+<br><br>ior.io.sub.-- Data=XferList;
+<br><br>The io.sub.-- Command field identifies the command name.
+<br><br>The io.sub.-- Offset field contains the starting position for the read. Any
+     suitable addressing scheme may be used, e.g., a 32-bit word. In a
+     preferred embodiment, disk offsets are addressed as logical sector numbers
+     within the CD-ROM track.
+<br><br>The io.sub.-- Length field limits the total number of sectors to be read.
+     This number is calculated from the number of bytes to be transferred in
+     the list, or it can be specified as -1 indicating no limit. In the latter
+     case, the drive operation will be aborted when the transfer list is
+     completed. When a zero length is used, a seek is performed but no data are
+     read.
+<br><br>The io.sub.-- Data field points to the transfer list. The stored pointer is
+     not limited to a list header. It may point to any node within the list,
+     hence partial lists or circular lists can be used.
+<br><br>Each node in a CDXL transfer list contains information regarding a
+     destination for a portion of the data to be read. There is one node for
+     each separate data buffer. A header file is defined to contain the key
+     structure:
+<br><br><pre>    ______________________________________
+    struct CDXL
+              struct     MinNode      *Node;
+              UWORD      *Buffer;
+              ULONG      Length;
+              FUNC       DoneCode;
+              ULONG      Actual;
+    };
+    ______________________________________
+</pre>
+<br><br>The members of the CDXL structure function as follows. The MinNode
+     structure is used for list linking by the Exec list functions, including
+     AddHaad(), AddTail(), RemHead(), lnsert(), and Remove().
+<br><br>The Buffer pointer determines the location to store data being read. In a
+     preferred embodiment, it is word aligned by even number. The buffer
+     (pointed to) is filled with the number of bytes specified in the Length
+     field. Preferably, the length should also be an even number (because it is
+     two times the number of words). Optionally, the buffer pointer may be
+     zero. In this case, the data are read from a CD but discarded, e.g., into
+     a bit bucket. This feature is quite useful for skipping unused areas of
+     the CD without terminating a continuous read operation.
+<br><br>Upon reading the specified number of bytes, the DoneCode function callback
+     is executed. The callback function is executed as part of interrupt
+     handling. In a preferred embodiment, it runs in Amiga Exec supervisor mode
+     on the supervisor stack; all normal interrupt code restrictions apply. A
+     NULL in the DoneCode field is considered a no-op, i.e., no callback
+     function is executed. To avoid CD DMA channel timeouts, callback functions
+     should be succinct.
+<br><br>Finally the ActuaI field indicates the number of bytes actually read into
+     the buffer. Normally, this is the same as Length. If an error has occurred
+     or Length is examined before the completion of a read, however, Length and
+     Actual will differ. If a zero Length is specified, no transfer occurs and
+     callback is invoked immediately.
+<br><br>Upon completing the transfer list, the Exec DoIO() or sendIO() functions
+     can be used to start the transfer.
+<br><br>There are several advantages to using the transfer lists as taught by the
+     present invention. The application developer has complete flexibility in
+     ordering and selecting locations for data buffers. Transfer lists can be
+     built anywhere in memory--they need not be next to or part of the buffers.
+     Because the nodes are linked together at run time, a developer can create
+     and modify the order of nodes to suit his/her own requirements.
+<br><br>In organizing CD sectors and CDXL transfer lists, consideration must be
+     given to the sizes, locations, and timing relationships of the particular
+     data. Therefore, the exact form of a transfer list will depend entirely on
+     how a developer wishes to partition data and the buffer(s) to which it
+     must be distributed.
+<br><br>2. CD.sub.-- READXL Method
+<br><br>Referring now to FIGS. 3-8, the operation of the CD.sub.-- READXL method
+     will now be described. In FIG. 3 there is shown a flowchart of the
+     CD.sub.-- READXL method or procedure 300. In step 301, the current disk in
+     CD drive 106 is tested to confirm that it is a CD-ROM or other specified
+     media; if not, an error is returned. In step 302, Length and Offset
+     (sector location) of the overall read are fetched from the I/0 request
+     block: ior.io.sub.-- Length (SectorCount) and ior.io.sub.-- offset
+     (SectorNumber). In step 303, the Direct Memory Access (DMA) semaphore
+     (Appendix B) is obtained for accessing the DMA controller hardware. In
+     step 304, a READ command is sent to CD drive 106. In step 305, the CD
+     transfer list pointer is fetched, thereby giving the next node of the
+     transfer list. In step 306, if the end of the list has been reached, then
+     in step 307 the procedure returns after signaling that the READ is done.
+     In step 308, the CDXL transfer is started for Length (StartXL method). In
+     step 309, the procedure awaits a signal--the DMA interrupt--that the read
+     has finished or an error has occurred. If there is more data to transfer
+     in step 310, then the procedure loops to step 308. Otherwise, at step 311
+     the node is checked to see if it has a pointer to a callback function
+     (DoneCode). If yes at step 311, then the callback function is executed in
+     step 312 and the procedure loops to step 305 to get the next node.
+     Otherwise, the procedure loops back to step 305 without executing a
+     callback function.
+<br><br>Referring to FIG. 4, there is shown a flowchart of the StartXL method or
+     procedure 400 which is called in step 308 above. StartXL 400 initiates the
+     actual transfer, including obtaining the first valid entry of the transfer
+     list. In step 401, the procedure fetches the first node from the transfer
+     list, and in step 402 a pointer to the node is saved. In step 403, the
+     Actual field of the node is cleared. In step 404, data transfer is started
+     (StartTransfer method). In step 405, the procedure returns if the transfer
+     has started. Otherwise (no at step 405), the procedure advances to the
+     next node at step 406 and then loops to step 402.
+<br><br>Referring to FIG. 5, there is shown a flowchart of the StartTransfer method
+     or procedure 500 which is executed in step 404. StartTransfer divides
+     large transfer lengths into several smaller ones which meet the
+     limitations of the hardware; it also advances the Buffer pointer to the
+     proper position within the buffer. In step 501, the number of bytes to
+     transfer (XL.sub.-- LENGTH) is determined for the current node of the
+     transfer list. If this number is zero at step 502, then the procedure
+     returns. In step 503, the procedure determines how many more bytes need to
+     be transferred for the current node (Actual-Length). If this number is
+     zero, then at step 504 the procedure returns. In step 505, the size of the
+     transfer (for this node) is determined to be either a "normal buffer
+     transfer" or a "skip buffer" (Buffer is NULL). In the latter case, the
+     data transferred to the buffer will be ignored. In step 506, the Buffer
+     pointer is advanced for this portion of the transfer; if no buffer is
+     specified, a skip buffer is used. In step 507, the DMA transfer is started
+     (StartDMA), and in step 508 a DMA timeout is set.
+<br><br>Referring to FIG. 6, a flowchart is shown of the StartDMA method 600 (step
+     507), the procedure for interfacing the DMA hardware. In step 601, a DMA
+     transfer terminal count (hardware register) is set equal to the value
+     determined in step 503. In step 602, the DMA target location (hardware
+     register) is set equal to the buffer of step 506. In step 603, the DMA
+     terminal count interrupt (hardware register) is enabled. In step 604, DMA
+     is invoked by setting the DMA hardware register.
+<br><br>After step 604, the DMA chip waits for data to arrive from CD drive 106.
+     The DMA moves data without involving CPU 101. Each byte is processed by a
+     request/acknowledge handshake, a technique which is known in the art. If a
+     timeout error occurs, the operation is aborted.
+<br><br>DMA transfer should include appropriate interrupt handling. In a preferred
+     embodiment, a transfer terminal counter and a transfer done interrupt are
+     used. When the transfer terminal counter reaches zero, a DMA interrupt
+     procedure (DMAInterrupt) is invoked.
+<br><br>Referring now to FIG. 7, there is shown a flowchart of DMAInterrupt
+     procedure 700. In step 701, the interrupt is verified. The procedure
+     returns at step 702 for invalid interrupts. In step 703, the DMA timeout
+     is cleared. In step 704, the StartTransfer procedure is called again. In
+     step 705, if the transfer has started, the procedure returns. Otherwise,
+     the procedure continues on to step 706. In step 706, if a callback
+     function exists (function pointer defined in the DoneCode field), the
+     callback function is invoked at step 707. Otherwise, the procedure skips
+     step 707. In step 708, the next node is fetched. At step 709, if the node
+     exists the procedure loops back to step 704. Otherwise (no node), at step
+     710 a signal is sent to CPU 101 indicating that the CD.sub.-- READXL
+     method has been completed.
+<br><br>If a DMA transfer time is excessively long, a timeout should occur.
+     Referring to FIG. 8, there is shown a DMATimeout procedure 800 which is
+     called at regular intervals for processing timeouts. In step 801, the DMA
+     timeout timer is decremented. In step 802, if the timer is not less than
+     or equal to zero, then the procedure returns. Otherwise (no at step 802),
+     a DMA error is indicated to the device driver. In step 804, the DMA
+     operation is aborted: the DMA interrupt is disabled, any DMA transfer is
+     halted, the terminal transfer count is cleared, and the DMA interrupt is
+     cleared. In step 805, a signal is sent to CPU 101 indicating that the
+     CD.sub.-- READXL method has been completed.
+<br><br>List Construction: Application examples
+<br><br>The following examples are offered by way of illustration and not
+     limitation. As an introductory CDXL example, consider a program with data
+     requirements in the order of:
+<br><br>48 full-color video images (e.g., total size of 48k)
+<br><br>20 stereo sound (e.g., total size of 40k) From the C language (Kernighan,
+     B., and Ritchie, D., The C Programming Language, Second Edition, Prentice
+     Hall, 1988), the elements for a transfer list may be built from static
+     structures:
+<br><br><pre>    ______________________________________
+    struct MinList XferList;
+    struct CDXL ImageXL =
+              NULL,NULL,     /* Linkage */
+              ImageBuf,      /* Buffer  */
+              48*1024,       /* Length  */
+              NULL,          /* DoneCode
+                                        */
+              0              /* Actual  */
+    };
+    struct CDXL SoundXL =
+    {
+              NULL,NULL,     /* Linkage */
+              SoundBuf,      /* Buffer  */
+              20*2024,       /* Length  */
+              NULL,          /* Donecode
+                                        */
+              0              /* Actual  */
+    };
+    ______________________________________
+</pre>
+<br><br>The structures would then be linked together with:
+<br><br><pre>    ______________________________________
+            NewList(&amp;XferList);
+            AddTail(&amp;XferList,&amp;ImagesXL);
+            AddTail(&amp;XferList,&amp;SoundXL);
+    ______________________________________
+</pre>
+<br><br>A generally more useful approach would be to create a function for creating
+     new list elements:
+<br><br><pre>    ______________________________________
+    struct CDXL *NewXL(1st,buf,len,code)
+               struct MinList *1st;
+               UWORD *buf;
+               ULONG len;
+               FUNC code;
+               struct CDXL *x;
+               x = malloc(sizeof(struct CDXL));
+               if (x == NULL) Error(No.sub.-- MEM);
+               x-&gt;Buffer = buf;
+               x-&gt;Length = len;
+               x-&gt;DoneCode = code;
+               AddTail(1st,x);
+               return x;
+    }
+    ______________________________________
+</pre>
+<br><br>The new initialization becomes:
+<br><br><pre>    ______________________________________
+    NewList(&amp;XferList);
+    NewXL(&amp;XferList,ImageBuf,48*1024,NULL);
+    NewXL(&amp;XferList,SoundBuf,20*1024,NULL);
+    ______________________________________
+</pre>
+<br><br>and adding new elements would be as simple as adding a new line. Of course
+     for both of these structures the CD should be laid out accordingly.
+<br><br>As another example, consider 40 full-color video images for display as
+     quickly as possible. Since each image occupies 48k (ignoring compression
+     techniques for simplicity), 3.125 images can be read per second. It is
+     assumed that the CD is mastered so that all 40 images are sequentially
+     positioned within the same file or sequentially arranged files (e.g., when
+     images are mod 2048, 40 separate files positioned adjacent to one
+     another). Since it is desirable to double buffer these images--reading the
+     next image while the current image is displayed--two buffers are
+     established and alternate images are read into alternate buffers.
+<br><br>Next, the transfer list is built. Creating it in a normal fashion would
+     require 40 entries, 20 for each buffer. There is, however, an easy
+     technique that will reduce this effort. Two entries are created, one for
+     each buffer, and the list is made circular. To do this a new function is
+     defined:
+<br><br><pre>    ______________________________________
+    LoopList(1st)
+          struct List *1st;
+          struct Node *head = 1st-&gt;1h.sub.-- Head;
+          struct Node *tail = 1st-&gt;1h.sub.-- Tail;
+          if (head-&gt;1n.sub.-- Succ == NULL) return; /* empty */
+          head-&gt;1n.sub.-- Pred = tail;
+          tail-&gt;1n.sub.-- Succ = head;
+    }
+    ______________________________________
+</pre>
+<br><br>Note that once this function has been executed, Exec AddHead(), AddTail(),
+     RemHead(), and RemTail() functions should not be used on the list. Insert(
+     ) and Remove() may still be used however. The code now becomes:
+<br><br><pre>    ______________________________________
+    NewList(&amp;XferList);
+    NewXL(&amp;XferList,ImageBuf1,48*1024,NULL);
+    NewXL(&amp;XferList, ImageBuf2,48*1024,NULL);
+    LoopList (&amp;XferList);
+    ______________________________________
+</pre>
+<br><br>When the read is performed, the device driver loops endlessly through this
+     list, filling one buffer then the other. The loop is broken when the
+     driver has read all sectors specified in the io.sub.-- Length field, or an
+     AbortIO has occurred. A callback function which could count the reads and
+     also break the loop may also be included.
+<br><br>Attached hereto is an Appendix A (which can be found in the application's
+     file) containing source code listings providing a description of the
+     invention suitable for use in a general purpose digital computer system,
+     such as an Amiga personal computer (see attached Appendix B: "The
+     Object-Oriented Amiga Exec" Which can be found in the application file) A
+     suitable compiler for the source code, which is written in 68000
+     Assembler, is available from several vendors.
+<br><br>While the invention is described in some detail with specific reference to
+     a single preferred embodiment and certain alternatives, there is no intent
+     to limit the invention to that particular embodiment or those specific
+     alternatives. The true scope of the invention is defined not by the
+     foregoing description but by the following claims.
+
+<br><hr><br>
+<p></p><center><a href="#top">Top</a></center><p></p>
+
+<p>&nbsp;</p>
+</body></html>

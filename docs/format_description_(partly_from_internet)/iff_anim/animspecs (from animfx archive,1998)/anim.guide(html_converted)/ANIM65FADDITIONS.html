@@ -1,0 +1,54 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   OpCode 6 Additions to OpCode 5
+   ------------------------------
+
+The format is exactly the same as  <a href="METHOD5.html">OpCode 5</a> 5 but is QUAD buffered
+instead of DOUBLE buffered. This allows the player to show 2 screens at one
+time for the X-Specs Glasses. Each picture MUST be viewed for 1/60th of a
+second, therefore to see a 3-D Picture the viewer can only play ANIMs at 30
+frames per second (2 pictures = 1 frame).
+
+The IFF file is stored exactly the same except that instead of having each
+DLTA (delta) modify bitmap two frames back, it modifies the bitmap four
+frames back.
+
+Example:
+
+ ------------------------
+ |                      |
+ |   BMHD               |
+ |                      |
+ ------------------------
+ |   DLTA  (1)          |
+  ------------------------
+ |   DLTA  (2)          |
+ ------------------------
+ |   DLTA  (3)          |
+ ------------------------
+ |   DLTA  (4)          |
+ ------------------------
+ |   DLTA  (5)          |
+ ------------------------
+ |   DLTA  (6)          |
+ ------------------------
+            .
+            .
+            .
+ ------------------------
+ |   DLTA  (x)          |
+ ------------------------
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

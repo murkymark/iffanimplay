@@ -77,8 +77,8 @@ bool Widget::intersectRect(const SDL_Rect *r2, SDL_Rect *intersection)
 
 
 void Slider::setImages(const char *path0, const char *path1){
-	thumb = guiPtr->loadIcon(path0);
-	thumbGhost = guiPtr->loadIcon(path1);
+	thumb = guiPtr->loadImageFile(path0);
+	thumbGhost = guiPtr->loadImageFile(path1);
 
 //cout << (int)thumb << endl;
 //cout << (int)thumbGhost << endl;
@@ -108,7 +108,7 @@ void Slider::draw(SDL_Surface *dst, int x, int y){
 
 void Button::setImages(const char *path0, const char *path1){
 	//unpressed and pressed button image
-	SDL_Surface *icon = guiPtr->loadIcon(path0);
+	SDL_Surface *icon = guiPtr->loadImageFile(path0);
 	buttonSurf[0] = guiPtr->createRectSurf(icon->w, icon->h, guiPtr->buttonColor());
 	SDL_BlitSurface(icon, NULL, buttonSurf[0], NULL);
 	guiPtr->draw3DBorder(buttonSurf[0], false, NULL);
@@ -116,7 +116,7 @@ void Button::setImages(const char *path0, const char *path1){
 
 	if(path1 != NULL) {
 		SDL_FreeSurface(icon);
-		icon = guiPtr->loadIcon(path1);
+		icon = guiPtr->loadImageFile(path1);
 	}
 	buttonSurf[1] = guiPtr->createRectSurf(icon->w, icon->h, guiPtr->buttonColor());
 	SDL_BlitSurface(icon, NULL, buttonSurf[1], NULL);

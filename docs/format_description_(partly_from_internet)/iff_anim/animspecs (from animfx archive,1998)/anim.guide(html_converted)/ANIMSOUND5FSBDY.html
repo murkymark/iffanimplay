@@ -1,0 +1,56 @@
+<HEAD>
+<TITLE>
+
+</TITLE>
+</HEAD>
+
+<BODY>
+<PRE>   SBDY Chunk
+   ----------
+
+The samplechunk SBDY includes all sampledata wich have to be played back for
+the actual frame. Every SBDY chunk includes only a small part of the whole
+sample and every part fits to its frame. If you use the correct playback-
+speed, you can use the sample-playbacktime for synchronising your anim-
+playbackspeed.
+
+The organisation of the SBDY chunk depends on the definitions in SXHD chunk.
+The most important examples have following structure:
+
+Sampledepth: 8 Bit
+Mode: Mono
+   Sampledata are stored like in normal 8SVX-format, UBYTE by UBYTE and
+   only one channel.
+
+Sampledepth: 8 Bit
+Mode Stereo
+   Here Sampledata are also stored like in normal Stereo-8SVX-Format, first
+   all UBYTEs for the left channel and then all for the right channel.
+
+
+* NOTE! The last frame of a ANIM could have two SBDY chunks. The first one
+* has to be played like all others when the last frame is displayed. The
+* second Frame includes sampledata wich often have an other length. These
+* sampledata have to be played after the end of the animation (e.g. when
+* the screen fades to an other).
+* If you have a looped ANIM, ignore these additional SBDY-Chunk. You have
+* to playback the data of these chunk if you leave the ANIM after the last
+* loop.
+
+NOTE ALSO! In future there can be programs wich support ANIMs with sound. If
+such a program merges two ANIMs with sound, it can happen, that a frame
+in the middle of the complete animation owns two SBDY-Chunks. Then you have
+to do following: Replay the second SBDY with your normal two channels (could
+be Amiga®-channels A and B) and start immediately replaying the next frame
+with its SBDY-Sounddata onto the other two channels (the Amiga®-channels
+D and C). So you will get the perfect fading from one part of a animation
+to the other (it should look and sound nearly like in good movies!).
+
+
+
+</PRE>
+
+<HR>
+<address>
+converted with guide2html by <a href="http://www-users.informatik.rwth-aachen.de/~ruebe/ich.html">Kochtopf</a></address>
+</BODY>

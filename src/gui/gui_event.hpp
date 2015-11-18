@@ -241,6 +241,8 @@ class EventHandler {
 
 	//search
 	bool IsBound(){
+		//...
+		return false;
 	}
 	
 	
