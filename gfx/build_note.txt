@@ -1,2 +1,0 @@
-For the final release all used graphics are integrated into the executeable.
-A small script or helper program shall create C arrays.
