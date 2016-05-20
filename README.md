@@ -27,3 +27,5 @@ Programs that export ANIM:
  ...  
 
 Free animation files are available at http://aminet.net/pix/anim
+
+![shot0.png](/screenshot/shot0.png?raw=true)  
