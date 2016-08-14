@@ -43,7 +43,7 @@ enum_fileType AnimPlayer::Open(const char *path)
  //try to open in read mode to check if file can be accessed
  fstream file;
  file.open(path, ios::in);
- if(file.is_open() == false) {
+ if(!file.is_open()) {
    cout << "Error: Can't open file. Check the path!\n";
    return IFFANIMPLAY_FT_NONE;
  }
@@ -80,7 +80,7 @@ enum_fileType AnimPlayer::Open(const char *path)
  }
  
 
- if(ok == false){
+ if(!ok){
    cout << endl << "Trying CDXL decoder:" << endl;
    dec_cdxl = new CDXL();
  
@@ -106,8 +106,8 @@ enum_fileType AnimPlayer::Open(const char *path)
  cout << endl;
 
 
- if(ok == false)
-   cout << "None of the available decoders could open this file\n";
+ if(!ok)
+   cout << "None of the available decoders could open this file!\n";
 
  return ftype;
 }

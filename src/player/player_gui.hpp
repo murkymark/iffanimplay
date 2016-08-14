@@ -12,9 +12,8 @@ class AnimPlayer;
 //font related
 #define FONT_FILE IFFANIMPLAY_GUI_GFXPATH"font.bmp"
 #define GLYPH_W  6
-#define GLYPH_H  12
 #define GLYPH_W_BMP 8  //glyph width in bitmap file
-
+#define GLYPH_BASELINE 10
 
 
 
@@ -56,7 +55,7 @@ class AnimPlayerGui : public SDLGui
 	}
 	
 	virtual void threadAppEntry();
-	virtual void resizeWindow_callback();
+	virtual void resizeWindow_callback(); //called after window is resized, to redraw/refit
 	virtual void eventPoll();
 };
 

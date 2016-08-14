@@ -2,23 +2,25 @@
 //This way data can be embedded right into the executeable instead of depending on external files.
 //The portable alternative to compiler specific resource packaging.
 //
-//Compile and run this little helper tool before the main project.
-//A *.c and *.h file is generated which you can link to your project.
-//In the current directory a file "list" shall contain the following: 
-//  line 1-end: a file path per line
-//   empty lines are skipped
-//   excess spaces are not omitted
+//Can only process ASCII pathes!
 //
-//Files to embed should be small.
+//Compile and run this little helper tool before the main project.
+//A *.c and *.h file is generated which you can link to your project. (Overwrites files if they exist already!)
+//The list file shall contain the following: 
+//  line 1-end: a file path per line, relative to the list path
+//    empty lines are skipped
+//    excess spaces are not omitted
+//
+//Files to embed should be small. They make executeable bigger
 //Generated *.c file becomes 5 times as big because of hexadecimal coding.
-//Normal block scope arrays are size limited by the stack size
-//  There are ways around that (to implement)
-//   by splitting single files into multiple arrays and block scopes and joining them in an allocated array by an init function
-//     -> doubles total memory requirement
+//The compiler may have size limits for global scope arrays
+//  There are ways around that (not implemented)
+//   by splitting single files into multiple arrays and joining them in an allocated array by an init function
+//   -> doubles total memory requirement
 //
 //Options:
 // -h, --help        : Print usage
-// -l, --list <path> : Path to list input file (CWD/list by default) (dir or direct path file)
+// -l, --list <path> : Path to list input file ("./list" by default) (dir or direct path file)
 // -o, --out <path>  : Path to output files + file base name ("foo/myresource" outputs as "foo/myresource.h" and "foo/myresource.c")
 
 
@@ -43,8 +45,9 @@ void print_help(char *argv0){
 	printf(
 		"Options:\n"
 		" -h, --help        : Print help\n"
-		" -l, --list <path> : Path to list input file (CWD/list by default)\n"
+		" -l, --list <path> : Path to list input file (./list by default)\n"
 		" -o, --out <path>  : Path to output files + file base name\n"
+		" -r, --root        : Root directory to open resource files from\n"
 	);
 }
 
@@ -130,10 +133,12 @@ char *make_var_name(char *s){
 
 
 
-int main (int argc, char *argv[]){
-	char *path_list = "";
-	char *path_out = "";
-	char h_guard[1000] = "";
+int main(int argc, char *argv[]){
+	char *path_list = "";     //path of list file
+	char path_list_dir[1000] = "./"; //directory part of path of list file
+	char root = 0; //indicator if root path is specified via argument
+	char *path_out = "";      //output path of generated source code
+	char h_guard[1000] = "";  //include guard string for generated source code header file
 	
 	//check for parameters - file paths, else we assume CWD
 	for(int i = 1; i < argc ; i ++) {
@@ -153,10 +158,21 @@ int main (int argc, char *argv[]){
 			}
 			path_out = argv[i];
 		}
+		else if(strcmp(argv[i], "-r") == 0  ||  strcmp(argv[i], "--root") == 0) {
+			i++;
+			if(i >= argc) {
+				fprintf(stderr, "Too few arguments!\n");
+				exit(EXIT_FAILURE);
+			}
+			strcpy(path_list_dir, argv[i]);
+			root = 1;
+		}
+		
 		else if(strcmp(argv[i], "-h") == 0  ||  strcmp(argv[i], "--help") == 0) {
 			print_help(argv[0]);
 			exit(EXIT_SUCCESS);
 		}
+		
 		else {
 			fprintf(stderr, "Unknown argument: \"%s\"\n", argv[i]);
 			exit(EXIT_FAILURE);
@@ -168,6 +184,18 @@ int main (int argc, char *argv[]){
 	streamline_path(path_list);
 	streamline_path(path_out);
 	
+	//get directory part without filename from path_list if root dir not set via arguments
+	if(!root) {
+		char *ptr = strrchr(path_list, '/'); //search last dir separator
+		if(ptr != NULL) {
+			int len = ptr - path_list;
+			memcpy(path_list_dir, path_list, len + 1);
+			path_list_dir[len+2] = '\0';
+		}
+	}
+	printf("Directory of list file: \"%s\"\n", path_list_dir);
+	
+	
 	//a set would be enough but a dict/map works also - actually we only need sorted keys for faster access
 	struct dict *dfiles = dict_create(100); //to skip files we already have (same path)
 	struct dict *dvars = dict_create(100);  //to avoid duplicate array name, we add a number
@@ -176,7 +204,9 @@ int main (int argc, char *argv[]){
 	//open list file
 	//first try direct path then path/list
 	char ts[1000] = ""; //temp string
-	FILE *fin = open_file(path_list, "", "r");
+	FILE *fin = NULL;
+	if(strlen(path_list) > 0)
+		fin = open_file(path_list, "", "r");
 	if(fin == NULL) {
 		int left = 999; //free string buffer, to prevent string buffer overflow
 		if(strlen(path_list) == 0){
@@ -192,7 +222,7 @@ int main (int argc, char *argv[]){
 		fin = open_file(ts, "", "r");
 	}
 	if(fin == NULL){
-		fprintf(stderr, "Failed to open list file: \"%s\"\n", path_list);
+		fprintf(stderr, "Failed to open list file!\n");
 		exit(EXIT_FAILURE);
 	}
 	printf("List file opened\n\n");
@@ -204,15 +234,19 @@ int main (int argc, char *argv[]){
 	int count_file = 0;
 	int count_line = 0;
 	int count_size = 0;
-	char *r;
-	r = fgets(ts, 1000, fin);
 	
-	while(r != NULL) {
-		count_line ++; //starts at 1
+	
+	while(1) {
+	
+		char *r = fgets(ts, 1000, fin); //get single line from list file
+		
+		if(r == NULL)
+			break;
+		
+		count_line ++; //first line starts at 1
 		
 		//remove newline
-		char *n;
-		n = strchr(r, '\n');
+		char *n = strchr(r, '\n');
 		if(n != NULL)
 			r[n-r] = '\0';
 		n = strchr(r, '\r');
@@ -220,21 +254,23 @@ int main (int argc, char *argv[]){
 			r[n-r] = '\0';
 		//ts now contains file path with file name
 		
+		
 
 		if(strlen(ts) != 0) { //no empty line
-				
+			
 			if(dict_get(dfiles, ts) != NULL) {
 				printf("File \"%s\" in line %d already processed! Skipping.\n", ts, count_line);
 			}
 			else {
 				dict_put(dfiles, ts, ""); //remember file path
 				
-				if(fout_h == NULL) { //if h file not opened yet
+				if(fout_h == NULL) { //if .h file not opened yet
 					fout_h = open_file(path_out, ".h", "w");
 					if(fout_h == NULL)
 						exit(EXIT_FAILURE);
+					
 					sprintf(h_guard, "_%s_H_", get_file_base_name(path_out));
-					fputs ("//Automatically generated by file2array, do not edit!\n\n", fout_h);
+					fputs ("//Automatically generated by file2array, manual changes may get lost\n\n", fout_h);
 					fputs ("//include guard\n", fout_h);
 					fputs ("#ifndef ", fout_h);
 					fputs (h_guard, fout_h);
@@ -247,10 +283,16 @@ int main (int argc, char *argv[]){
 					fout_c = open_file(path_out, ".c", "w");
 					if(fout_c == NULL)
 						exit(EXIT_FAILURE);
-					fputs ("//Automatically generated by file2array, do not edit!\n\n", fout_c);
+					fputs ("//Automatically generated by file2array, manual changes may get lost!\n\n", fout_c);
 					printf("\n");
 				}
 				
+				//The following will only work with relative pathes in the list file!
+				char ts2[1000] = ""; //list file relative path + path from list file (only used to open the file)
+				strcat(ts2, path_list_dir);  //add prefix
+				strcat(ts2, ts);
+				//memmove(ts + strlen(path_list_dir), ts, strlen(ts) + 1);  //+1 for terminator
+				//memcpy(ts, path_list_dir, strlen(path_list_dir));
 				
 				
 				printf("file %d: \"%s\"\n", count_file, ts);
@@ -258,7 +300,7 @@ int main (int argc, char *argv[]){
 				
 				//open input file
 				FILE *fdata;
-				fdata = open_file(ts, "", "rb");
+				fdata = open_file(ts2, "", "rb");
 				if(fdata == NULL) {
 					fprintf(stderr, "Can't open file! line: %d!\n", count_line);
 					printf("Incomplete!\n");
@@ -300,7 +342,7 @@ int main (int argc, char *argv[]){
 					buffered += fread(buf+1, 1, 1, fdata);
 				}
 				count_size += fsize;
-				fputs ("\n}\n", fout_c);
+				fputs ("\n};\n", fout_c);
 				fclose(fdata);
 				printf("size: %d\n", fsize);
 				fprintf(fout_h, "//source: \"%s\"  size: %d\n", ts, fsize);
@@ -309,12 +351,11 @@ int main (int argc, char *argv[]){
 			}
 		}
 		
-		r = fgets(ts, 1000, fin);
 	}
 	
 	
 	/*
-	//test
+	//dict test
 	struct dict *d = dict_create(100);
 	dict_put(d, "hello", "welcome");
 	dict_put(d, "hello2", "yippie");

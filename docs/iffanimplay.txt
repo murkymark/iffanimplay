@@ -2,8 +2,8 @@ iffanimplay
 ###########
 
 
-Version: 01-Feb-2015
-Author: Markus Wolf (http://murkymind.de/projects/iffanim/)
+Version: 08-Aug-2016
+Author: Markus Wolf (http://murkymind.de/ - https://github.com/murkymark/iffanimplay)
 License: GNU LGPL v3 (http://www.gnu.org/licenses/lgpl.html)
 
 
@@ -15,9 +15,9 @@ All files of this package are released under the above license unless specified 
 Source package info:
 --------------------
 This package includes player code and file format readers designed as independent libraries:
- iffanimplay
- libiffanim
- libcdxl
+ - iffanimplay
+   - libiffanim
+   - libcdxl
 The libraries have no depencies and can be integrated easily into any other project without the player.
 
 
@@ -52,34 +52,6 @@ Purpose/Features:
                  108 (ANIMl) -> see XAnim source code; ,
 
 
-todo: file stream support, without loading all frames to memory first
-todo: support for ANIM+SLA introduced with BigAnim 4.0 and SET2ANIM (see Aminet) and described in their docs
-todo: support for ANSQ (animation sequence) chunk, some files have stored frames out of order (ANIM-J only?) which won't (decode ?) and play correctly otherwise
-      -> maybe print if chunk is found, but ignore it by default (use only if parameter option) -> can create loops blowing up the number of frames multiple times
-      -> seems to give the order of DLTA decoding, otherwise garbled graphics (wrongly applied delta) appear
-      (thanks to the info given here: https://home.comcast.net/~erniew/cghist/cvtmovie.html)
-todo: read a "form ilbm" completely to memory when searching for subchunks to avoid jumping around in file
-      although a modern OS should cache it anyways in RAM
-todo: add debug method printing chunk sequence
-todo: CRNG - color cycling -> map to one frame per color (1/60 sec resolution) -> for delay longer than 1 we split single into multiple frames
-
-
-todo:
--nogui        no GUI available (GUI graphics not loaded)
--hidegui      show no gui at start
--scalesmooth  bilinear scaling (else nearest neighbour used by default)
-
-dragAndDrop:  system_specific.cpp (Windows already supported)
-
-gui:
-progressbar
-time scale slider
-0:00:00/0:00:00
-buttons: play, pause, next frame
-
-
-
-
 Usage:
 ------
   iffanimplay inputfile [options]
@@ -91,6 +63,7 @@ Usage:
   Just open the player window, no options:
   example: iffanimplay
 
+
 Options:
 --------
 Generic:
@@ -101,23 +74,15 @@ Generic:
   -help              - print command line help
   -pause             - show first frame and pause at start (else playback starts by default)
   -noaudio           - no audio is played
-  -w                 - scale to requested width in pixels
+  -w                 - scale to requested width in pixels (example: "-w300"), nearest neighbour scaling only
   -h                 - scale to requested height in pixels
 
 IFFanim related:
   -fixtime...      - a fixed delay between frames is used, delay in ms (example:  "-fixtime1000")
-  -loopanim        - doesn't play the last 2 frames when looping, for animations where the 2 first and the 2 last frames are the same
+  -loopanim        - doesn't play the last 2 frames, for animations where the 2 first and the 2 last frames are the same
 
 Non IFFanim:
   -fps...          - set frames per second value (example: -fps15.5); audio sample rate and pitch is adjusted accordingly
-  
-todo:
-  -dw...             - scale to requested width in pixels (example: "-w300"), nearest neighbour scaling only
-  -dh...             - scale to requested height in pixels
-  -d...x...          - scale to requested dimensions, width and height (example: "-d800x600")
-  -fs...x...         - start in fullscreen mode, a supported FS resolution must be given (in combination with -w -h centers image and controls aspec ration)(example: "-fs800x600")
-                       - in combination with -dw/-dh/-d... the aspect ratio is preserved in fullscreen
-                       - without -dw/-dh/-d... the frames are scaled to fullscreen dimensions
 
 
 Keys:
@@ -133,11 +98,8 @@ Keys:
   [3]:      sets scaling factor to 3   -> width and height is tripled
   [g]:      toggle graphical user interface (not useable yet)
   [c]:      close current file
-  [l]:      toggle loop
-
-TODO: [k]:  toggle loopanims 
-TODO: [alt]+[enter] -> switch between fullscreen and windowed mode (keep aspect ratio in fullscreen)
-TODO: [F1]: save snapshot to snapshot directory (option "-snapdir" required, otherwise pauses animation and opens file requester if supported on system)
+  [l]:      toggle loop, playback doesn't stop at last frame if enabled
+  [k]:      toggle loopanim (skip 2 last frames) - ignored if no IFF ANIM file is opened
 
 
 Window title bar:
@@ -178,63 +140,37 @@ Notes:
    http://forums.hollywood-mal.com/viewtopic.php?f=19&t=767
 
 
-Conversion hints
-----------------
-Use the extraction option to extract data in useable form.
+Conversion hints:
+-----------------
+Use the extraction option to extract data in useable form. => bmp files + parseable info file
 
-If the data should be converted to a FPS based video format (each frame with same delay):
-  The FPS should be chosen to be "1 / (smallest frame delay)" (1/60 minimum for iffanim), otherwise frames get lost very likely.
-  A parser is needed that synchronizes the output frame to the input (extracted) frame.
- 
+If the ANIM should be converted to an FPS based video format (each frame with same delay):
+ - The FPS should be chosen to be "1 / <smallest frame delay>"
+ - Smallest possible frame delay is 1/60 sec for IFF ANIM, so an FPS of 60 works always
+ - Frames could be skipped if FPS is too low
 
 
 History:
 --------
+planned:
+ - useable GUI system
+ - OpenGL support
+ - working CDXL
+ - working audio & proper timing
+
 2015-11
  - player code heavily reorganized
-   - audio broken :-(
- - drag & drop on Windows
- - libiffanim: support for SCALA ANIM compression 
+   - audio still broken:-(
+ - drag & drop on Windows (easily extensible for other OSes - see system_specific.cpp)
+ - libiffanim: support for SCALA ANIM compression (https://en.wikipedia.org/wiki/Scala_%28company%29#Scala_Multimedia) 
+ - key functions g,c,l
 
 2008-04-22
  - player code adjusted for multiple decoders
  - options modified
- - libcdxl included for CDXL file support
+ - libcdxl included for CDXL file support (decoding/output still incorrect)
 
-
-
-
-
-
-todo
----------------------------------
-
-add snapshot key 
+2006
+ - project started
  
-on error output: 
- - cannot set full screen resolution ...x...
- supported resolutions:
-   ...<sdl get list of resolutions>
-   ...
- (or use windowed mode)
------
-
-pressing right
--> Error: frame step backward not supported (only in indexed mode)
-
-------
--ansq             - if ANSQ chunk/list is found in ANIM file, play frames in the list's order, not stored DLTA frame order, which is default
--snapdir "path"   - snapshot directory (snapshots are only possible, if a valid path was given)
--speed...         - playback speed factor, audio is resampled accordingly (floating point, e.g.: "-speed1.53")
--audiosync        - force audio to be synchronous to frames => produces audio gaps if frames aren't displayed fast enough (asynchronous mode is used by default if possible)
--gl               - use OpenGL window => hardware accelerated scaling
-
--mt..  ,multithreading 1..4 (default => 1), improves loading or multithreaded scaling
-
--fs...x...  //start in fullscreen mode
-(or use normal window mode and press alt + enter -> tries to use minimum available resolution so that no pixels are skipped)
- -> and screen is not too big, which could slow down
-
-
-
 

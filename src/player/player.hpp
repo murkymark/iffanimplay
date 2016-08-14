@@ -39,11 +39,11 @@ using namespace std;
 
 
 //loaders
-#include <iffanim.h>   
+#include <iffanim.hpp>   
 #include <cdxl.h>
 
 //GUI
-#include "player_gui.h"
+#include "player_gui.hpp"
 
 
 
@@ -116,8 +116,9 @@ class AnimPlayer
  public:
    
    string file_to_open;   //name of video file to open/opened
+   string file_name;      //currently opened file
 
-   SDL_Surface* dispimg;    //scaled frame (needed because we don't have a scaling function for every possible screen mode; and to automatically convert the data to screen mode by blitting)
+   SDL_Surface* dispimg;    //scaled frame (needed because we don't have a scaling function for every possible screen mode; and we automatically convert the data to screen mode by SDL blitting)
 
    bool init_done; //to prevent multiple init()
 
@@ -175,7 +176,7 @@ class AnimPlayer
  };
 
  public:
-   void Resize(int w, int h);  //resize window
+   void ResizeRefit(int w, int h);  //refit after resize
    int  GetFrameIndex();        //return currently displayed frame index
 
    int Play();                  //playback

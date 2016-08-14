@@ -10,4 +10,4 @@ BIN = bin/file2array.exe
 
 all:
 	gcc -static -Wall -g -o $(BIN) src_file2array/file2array.c src_file2array/dict.c
-	$(BIN) -l res/list_file2array  -o src_res/resource
+	$(BIN) -l res/list_file2array  -o src_gen/resource

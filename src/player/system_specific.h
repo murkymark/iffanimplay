@@ -45,11 +45,11 @@ using namespace std;
 
 
 
-//system dependant init
+//system dependent init
 void system_init();
 
-//system dependant init
-//call only after window is opened (may crash otherwise)
+//system dependent init
+//call only after window is opened, may crash otherwise
 void system_window_init();
 
 //process system events (drag and drop)

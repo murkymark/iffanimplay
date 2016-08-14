@@ -1,4 +1,4 @@
-#include "iffanim.h"
+#include "iffanim.hpp"
 #include "../amiga_conv.h"
 #include "../safemem.hpp"
 
@@ -1322,6 +1322,7 @@ void IffAnim::read_CMAP(fstream* file, iffanim_frame* frame)
  if(ehb) {
     palsize = palsize / 2;
     file->read(frame->cmap, palsize);
+    //generate half brightness colors not stored in file:
     for(j = 0; j < palsize; j++)
        frame->cmap[palsize + j] = frame->cmap[j] / 2;  // every color value divided by 2 (half brightness)
  }
@@ -1599,12 +1600,13 @@ int IffAnim::ReadFrames(fstream* file)
          file->seekg(filepos, ios::beg);  //back to ILBM chunk start
        }
    }
-   else
+   else //all frames > 0
    {
        //search for new CMAP
        pos = FindChunk(file, "CMAP", ILBMsize);
        if(pos != -1) {
          read_CMAP(file, &(frame[i]));
+         //printf("DEBUG: new cmap at: %d\n", pos);  //debug
        }
        file->seekg(filepos, ios::beg);  //back to ILBM chunk start
    }
@@ -2105,9 +2107,12 @@ bool IffAnim::NextFrame()
  //decompress to prevframe
  DecodeFrame(prevframe, frameno);
  
- //get cmap pointer
- if((bpp <= 8) && (frame[frameno].cmap != NULL))
+ //get cmap pointer if frame has new cmap
+ //a new cmap applies for all (2) framebuffers
+ if((bpp <= 8) && (frame[frameno].cmap != NULL)) {
     prevcmap = frame[frameno].cmap;
+    curcmap = frame[frameno].cmap;
+ }
 
  SwapFrameBuffers();
 

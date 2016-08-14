@@ -5,19 +5,19 @@
 
 
 void Panel::prepareSurface(){
-	if(surf != NULL  &&  (r.w != surf->w  ||  r.h != surf->h)){
+	if(surf != NULL  &&  (w != surf->w  ||  h != surf->h)){
 		SDL_FreeSurface(surf);
 		surf = NULL;
 	}
 	if(surf == NULL)
-		surf = guiPtr->createRectSurf(r.w, r.h, COLOR_PLAIN());
+		surf = guiPtr->createRectSurf(w, h, COLOR_PLAIN());
 
-	if(surfMerged != NULL  &&  (r.w != surfMerged->w  ||  r.h != surfMerged->h)){
+	if(surfMerged != NULL  &&  (w != surfMerged->w  ||  h != surfMerged->h)){
 		SDL_FreeSurface(surfMerged);
 		surfMerged = NULL;
 	}
 	if(surfMerged == NULL)
-		surfMerged = guiPtr->createRectSurf(r.w, r.h, 0);
+		surfMerged = guiPtr->createRectSurf(w, h, 0);
 }
 	
 
@@ -39,8 +39,8 @@ bool Widget::intersectRect(const SDL_Rect *r2, SDL_Rect *intersection)
 	int Amin, Amax, Bmin, Bmax;
 
 	// Horizontal intersection
-	Amin = r.x;
-	Amax = Amin + r.w;
+	Amin = x;
+	Amax = Amin + w;
 	Bmin = r2->x;
 	Bmax = Bmin + r2->w;
 	if(Bmin > Amin)
@@ -54,8 +54,8 @@ bool Widget::intersectRect(const SDL_Rect *r2, SDL_Rect *intersection)
 		}
 
 		// Vertical intersection
-		Amin = r.y;
-		Amax = Amin + r.h;
+		Amin = y;
+		Amax = Amin + h;
 		Bmin = r2->y;
 		Bmax = Bmin + r2->h;
 		if(Bmin > Amin)
@@ -129,7 +129,7 @@ void Button::setImages(const char *path0, const char *path1){
 void Button::draw(SDL_Surface *dst){
 	int i = 0;
 	if(pressed) i = 1;
-	guiPtr->blit(buttonSurf[i], dst, r.x, r.y);
+	guiPtr->blit(buttonSurf[i], dst, x, y);
 }
 
 void Button::draw(SDL_Surface *dst, int x, int y){

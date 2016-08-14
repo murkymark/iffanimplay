@@ -1,4 +1,4 @@
-#include "player_gui.h"
+#include "player_gui.hpp"
 #include "system_specific.h"
 
 void AnimPlayerGui::threadAppEntry(){
@@ -25,7 +25,7 @@ void AnimPlayerGui::resizeWindow_callback(){
 	int h_disp = screen->h;
 	if(showGui)
 		h_disp -= height;
-	player->Resize(screen->w, h_disp);
+	player->ResizeRefit(screen->w, h_disp);
 }
 
 
@@ -41,6 +41,39 @@ void AnimPlayerGui::myResize(int w_disp, int h_disp){
 void AnimPlayerGui::setupFont(){
 	string path = string(exepath) + FONT_FILE;
 	
+	SDLFontSingleSurface *f = new SDLFontSingleSurface();
+	f->SetName("Bitstream Vera Sans Mono");
+	SDL_Surface *s = SDL_LoadBMP(path.c_str());
+	f->SetSurface(s);
+	if(s != NULL) {
+	
+		/*//needed?
+		SDL_Color c[2];
+		c[0].r = 0;
+		c[0].g = 0;
+		c[0].b = 0;
+		c[1].r = 255;
+		c[1].g = 255;
+		c[1].b = 255;
+		SDL_SetPalette(s, SDL_LOGPAL | SDL_PHYSPAL, c, 0, 2);
+		*/
+		SDL_SetColorKey(s, SDL_SRCCOLORKEY, SDL_MapRGB(s->format, 0, 0, 0));
+
+		//prepare glyphs
+		SDL_Rect r;
+		for(int i = 0; i < 256; i++) {
+			r.x = i * GLYPH_W_BMP;
+			r.y = 0;
+			r.w = GLYPH_W;
+			r.h = s->h;
+			f->SetGlyph(i, &r, GLYPH_BASELINE);
+		}
+		
+	}
+	
+	addFont(f);
+
+	/*
 	SDLGuiFont *f;
 	f = new SDLGuiFont(SDL_LoadBMP(path.c_str()), "Bitstream Vera Sans Mono");
 	if (f->glyphSurf == NULL) {
@@ -60,6 +93,7 @@ void AnimPlayerGui::setupFont(){
 	}
 	
 	addFont(f);
+	*/
 }
 
 
@@ -137,13 +171,21 @@ void AnimPlayerGui::render(){
 	//fillRectGradient(screen, &r, 89, bg0, bg1); //not working yet
 	
 	buttonPlay->draw(screen, 100, 10);
-    buttonPause->draw(screen, 130, 10);
-    buttonLoop->draw(screen, 160, 10);
+	buttonPause->draw(screen, 130, 10);
+	buttonLoop->draw(screen, 160, 10);
 	
 	sliderPos->setPos(player->GetFrameIndex());
-    sliderPos->draw(screen, 200, 20);
+	sliderPos->draw(screen, 200, 20);
 	
-  // writeText(screen, 0, 2,0, "File: \"abcd/anim\"", 0xff,0xff,0xff);
-  //  writeText(screen, 0, 2,11, "00:00:00.000 / 12:35:57.678", 0xff,0xff,0xff);
+	if(font.size() > 0) {
+		SDLFontSingleSurface *f = *(font.begin());
+		//cout << f->glyphs.size() << endl;
+		f->TextWrite(screen, NULL, 0, 9, (string)"File: " + player->file_name);
+		f->TextWrite(screen, NULL, 30, 22, "00:00:00.000 / 12:35:57.678");
+	
+	//	SDLFontSingleSurface f2;
+  //  f2.DefaultFont();
+  //  f2.TextWrite(screen, NULL, 50, 50, "hello");
+	}
 }
 

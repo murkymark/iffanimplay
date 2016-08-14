@@ -292,7 +292,7 @@ bool AnimPlayer::openFile(int argc, const char *argv[]){
  if(Open(argv[1]) == IFFANIMPLAY_FT_NONE)
    return false;  //fail to open file
 
-
+ file_name = argv[1];
 
  //get frame format
  bool err = false;
@@ -458,8 +458,12 @@ int AnimPlayer::init(int argc, const char** argv)
      exepath = exepath.substr(0, pos+1);
    
    gui = new AnimPlayerGui(NULL, exepath, this);
+   gui->setupFont();
    gui->showGui = false;
  }
+
+ //useful when stepping through frames
+ SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 
  init_done = true;
 
@@ -549,6 +553,7 @@ void AnimPlayer::clear(){
    audiodata = NULL;
  }
  SDL_UnlockAudio();
+ file_name = "";
 }
 
 /******************************************************************************/
@@ -945,11 +950,14 @@ int AnimPlayer::Play()
 
 /******************************************************************************/
 bool AnimPlayer::JumpRel(int d){
+	if(ftype == IFFANIMPLAY_FT_NONE)
+		return false;
 	if(d == 0){
 		//display current frame
 		Scale(queue[qh].frame, dispimg);
 		if(gui->screen->format->BitsPerPixel <= 8)
-				SDL_SetColors(gui->screen, dispimg->format->palette->colors, 0, 256);
+			if(dispimg != NULL  &&  dispimg->format->palette != NULL)
+				SDL_SetColors(gui->screen, dispimg->format->palette->colors, 0, dispimg->format->palette->ncolors);
 		DrawFrame();
 		UpdateCaption();
 		return true;
@@ -996,7 +1004,7 @@ void AnimPlayer::DrawFrame()
 
 /******************************************************************************/
 //resize drawing surface (screen/window already resized by GUI!)
-void AnimPlayer::Resize(int w, int h)
+void AnimPlayer::ResizeRefit(int w, int h)
 {
  //w x h is whole screen size with GUI, w_disp x h_disp is the video frame size
  
@@ -1013,7 +1021,7 @@ void AnimPlayer::Resize(int w, int h)
  }
 
 
- //dispimg must be resized (surface content obsolete)
+ //dispimg must be resized, surface content obsolete
  if(dispimg == NULL  ||  w_disp != dispimg->w  ||  h_disp != dispimg->h)
  {
    SDL_Surface* tempsurf;
@@ -1029,7 +1037,7 @@ void AnimPlayer::Resize(int w, int h)
  }
  
  if(q_init)
-   Scale(queue[qh].frame ,dispimg);   //scale original frame to new dimensions
+   Scale(queue[qh].frame ,dispimg);   //scale current original frame to new dimensions
 
  //in full screen mode, don't change the screen, just scale the content
  //in window mode, remember the old window dimension, and try to restore, in case the new video mode dim is not supported
@@ -1102,7 +1110,7 @@ gui->fillRect(&r, i*10, i*10, i*10);
 //cout << (int)i << endl;
 i++;
 */
-if(playing)
+ if(playing)
 	;//cout << (stop_wait || (ended == true  &&  qframes == 1) || (playing == false) || (delayThres > SDL_GetTicks())) << endl;
 
     gui->eventPoll();
@@ -1151,16 +1159,16 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 			{
 				case SDLK_0:
 					gui->myResize(w_org / 2, h_org / 2);
-					break;                   
+					break;
 				case SDLK_1:
 					gui->myResize(w_org, h_org);
-					break;                          
+					break;
 				case SDLK_2:
 					gui->myResize(w_org * 2, h_org * 2);
-					break;                                
+					break;
 				case SDLK_3:
 					gui->myResize(w_org * 3, h_org * 3);
-					break;        
+					break;
 
 				case SDLK_ESCAPE:
 					gui->signal_appThreadEnd = true;
@@ -1195,7 +1203,7 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 					break;
 
 				case SDLK_LEFT:
-					if( queue[qh].frameno > 0 )
+					if(queue[qh].frameno > 0 )
 						if( Seek( queue[qh].frameno - 1 ) ){
 //						return IFFANIMPLAY_NONE;
 							stop_wait = true;
@@ -1228,7 +1236,7 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 //				return IFFANIMPLAY_NONE;
 //					stop_wait = true;
 					break;
-			   
+				
 				case SDLK_g:
 					if(gui->showGui)
 						gui->showGui = false;
@@ -1236,7 +1244,27 @@ void AnimPlayer::eventHandler(SDL_Event *e){
 						gui->showGui = true;
 					gui->myResize(w_disp, h_disp);
 					break;
+				
+				//iffanim specific
+				case SDLK_k:
+					if(ftype == IFFANIMPLAY_FT_IFFANIM){
+						if(loopanim){
+							loopanim = false;
+							dec_anim->SetLoopAnim(false);
+						}
+						else {
+							loopanim = true;
+							dec_anim->SetLoopAnim(true);
+						}
+						cout << "Loopanim (skip 2 last frames): " << (loopanim ? "on" : "off") << endl;
+						float lensec;
+						GetLength(&numframes, NULL, &lensec);
+						lentime = (int)(lensec * 1000);
+					}
+					break;
 			}
+
+			
 			break; //break SDL_KEYDOWN
 		
 		case SDL_SYSWMEVENT:

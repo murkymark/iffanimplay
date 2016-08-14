@@ -55,7 +55,7 @@ ANIM file here is currently only supported in it's standart structure:
     BMHD             normal type IFF data
     ANHD             optional animation header (chunk for timing of 1st frame)
     ...            
-    CMAP             optional cmap
+    CMAP             (cmap optional for frames > 0)
     BODY             normal iff pixel data
   FORM ILBM        frame 1
     ANHD             animation header chunk
@@ -91,11 +91,16 @@ TODO:
 
 History:
 --------
+ * 14-Aug-2016
+   - Issue with multiple color maps in ANIM file fixed
+     (reported by Piotr Bandurski)
+
  * 20-Jan-2015
    - Support for compression mode 100 (ANIM16) and 101 (ANIM32) added (used by Scala Multimedia/MM400 and InfoChannel/IC500)
+     (requested & format info by Dimitris Panokostas)
    - SafeMemory class added to prevent memory access violation for corrupt DLTA data
      -> may slow down a little; simplifies decompression code with (multi)byte access methods
-     
+
  * 22-Apr-2008
    - serveral changes (internal decoding buffer removed for simplification)
    - "GetPrevFrame()" removed -> not very useful
@@ -111,7 +116,7 @@ History:
 #ifndef _iffanim_H_
 #define _iffanim_H_
 
-#define IFFANIM_VERSION "1.01, 22-Apr-2008"
+#define IFFANIM_VERSION "2016-08-14"
 
 
 #include <iostream>
@@ -136,7 +141,7 @@ using namespace std;
 //used to play animations in loops and ping pong
 // -> no official specification found, just the source code of "XAnim" and "cvtmovie" (with notes on "https://home.comcast.net/~erniew/cghist/cvtmovie.html")
 // "reltime" of "ANHD" has to be ignored
-//chunk probaly used to reduce file size by encoding repeated frames only once
+//chunk probably used to reduce file size by encoding repeated frames only once
 typedef struct
 {
   uint16_t dindex;  // index into the delta array
@@ -169,14 +174,14 @@ class iffanim_frame
  
 
  streamsize audiopos; //absolute position starting with this frame
- int   audiosize;       //size of audiodata
+ int   audiosize;     //size of audiodata
  char *audiodata;     //audio data of this frame
 
 
 
  //print bit flags (useful for debugging)
  //print as bit string (most significant left), and listing of meaning
- //some flags are unused by specific compressions (shall be 0 => not meaning anything)
+ //some flags are unused for specific compressions (shall be 0 => not meaning anything)
  //flags stored as 32 bit Big Endian int in file, here already converted to system byte order
  void printBits(){
    printf("Flags of frame (32 bit int): ");
@@ -301,6 +306,7 @@ class IffAnim
    int  InterleaveStereo(char* data, int datasize, int bps);    //interleave audio (to common format) from separate channels (8 or 16 bit only), returns new array or NULL on error
 
    void SwapFrameBuffers();
+
 
  //>>>>>>>>> interface methods
  public:    

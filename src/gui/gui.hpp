@@ -52,6 +52,7 @@ add "bind()" method for all events (builds up a list for all events it shall che
 #include <algorithm>
 #include <queue>
 #include <list>
+#include <set>
 #include <math.h>
 
 #include <SDL/SDL.h>
@@ -60,12 +61,17 @@ using namespace std;
 
 #include "gui_widgets.hpp"
 #include "gui_event.hpp"
+#include "font.hpp"
 
 #define SDLGUI_DEBUG
 #ifdef SDLGUI_DEBUG
  #define DEBUG(EXPR) (EXPR) //include expression
 #else
  #define DEBUG(EXPR) () //exclude expression
+#endif
+
+#ifndef M_PI
+ #define M_PI 3.14159265358979323846
 #endif
 
 
@@ -113,34 +119,6 @@ extern SDLGui *guiPtr; //to access gui class members
 
 
 
-//bitmap font, up to 256 different glyphs (characters)
-// takes allocated surface and frees it by itself upon destruction
-class SDLGuiFont {
-	public:
-	SDL_Surface *glyphSurf;  //surface with all glyphs
-	SDL_Rect glyphRect[256]; //rectangle to cut out glyph from the surface, must be setup manually
-	string name;
-	int const id;		//unique reference id number
-	static int id_count; //initial value doesn't matter
-
-	//constructor
-	// add allocated surface, is then managed by the object
-	// set the rectangles for the glyphs manually
-	SDLGuiFont(SDL_Surface *s, const char *name_ = NULL): glyphSurf(s), id(id_count){
-		if(name_ == NULL){
-			name = "Noname";
-			name += id_count;
-		}
-		id_count++;
-		memset(glyphRect, 0, 256 * sizeof(SDL_Rect));
-        DEBUG(cout << "Font: " << name << " created" << endl);
-	};
-	
-	~SDLGuiFont(){
-		if(glyphSurf != NULL) SDL_FreeSurface(glyphSurf);
-        DEBUG(cout << "Font" << name << " freed" << endl);
-	}
-};
 
 
 
@@ -159,7 +137,7 @@ class SDLGui
 	// create new gui surfaces only via methods provided in this class
 	SDL_PixelFormat format;
 
-	list<SDLGuiFont*> font; //all glyphs on one surface
+	set<SDLFontSingleSurface*> font;
 	list<Panel*> panel; //list of panels, the basic GUI element (root of a widget tree)
 
 	queue<SDL_Event*> eventQ;  //queue of gui events, must be filled from extern thread
@@ -222,7 +200,7 @@ class SDLGui
 	//Change event polling delay (at the beginning it has a default value)
 	// 0: no delay, the polling loop runs at fast as possible -> high CPU usage, not recommended
 	// 1..10 ms recommended
-    void SetEventPollingDelay(int d){
+	void SetEventPollingDelay(int d){
 		eventPollingDelayMs = d;
 	}
 
@@ -230,18 +208,26 @@ class SDLGui
 	//  font must already be allocate and setup manually, before passed
 	//  don't deallocate added font, it will be freed automatically
 	//  the font can be referenced with it's reference number
-	void addFont(SDLGuiFont *f){
-		font.push_back(f);
+	void addFont(SDLFontSingleSurface *f){
+		font.insert(f);
+	}
+	
+	void delFont(SDLFontSingleSurface *f){
+		std::set<SDLFontSingleSurface*>::iterator it = font.find(f);
+		if(it != font.end()){
+			delete *it; //destroy value
+			font.erase(it); //remove
+		}
 	}
 
  //render gui
  void render();
 
-
+/*
  void writeText(SDL_Surface *s, int i, int x, int y, const char *str, Uint8 r, Uint8 g, Uint8 b){
 	 //get font from list
-	SDLGuiFont *f;
-	for (list<SDLGuiFont*>::const_iterator ci = font.begin(); ci != font.end(); ++ci)
+	SDLFontSingleSurface *f;
+	for (list<SDLFontSingleSurface*>::const_iterator ci = font.begin(); ci != font.end(); ++ci)
 		f = *ci;
 	 
 //	font->format->colors  =  r,g,b //map color
@@ -265,7 +251,7 @@ class SDLGui
 		 }
 	 }
  }
- 
+*/
 
  void blit(SDL_Surface *src, SDL_Surface *dst, int x, int y){
 	SDL_Rect r;
@@ -544,20 +530,21 @@ if(0);
  
 	/// Load image from memory (use SDL_RWops)
 	/// may fail if data has wrong format
-	SDL_Surface *loadImageMem(void *data, int size, bool use_dummy = true){
+	SDL_Surface *loadImageMem(void *data, int size, bool disp_format = true, bool use_dummy = true){
 		SDL_RWops *file;
 		file = SDL_RWFromMem(data, size);
 		SDL_Surface *image;
 		image = SDL_LoadBMP_RW(file, 1);
 		if(image == NULL)
-			cerr << "Error loading bitmap from adress " << data << endl << SDL_GetError() << endl;
+			cerr << "Error loading bitmap from address " << data << endl << SDL_GetError() << endl;
 		return loadImage_helper(image, use_dummy);
 	}
 
 	/// Load image file
-	/// @param path  image file path
-	/// @param use_dummy  if true create and return dummy image if loading failed, else return NULL on failure
-	SDL_Surface *loadImageFile(const char *path, bool use_dummy = true){
+	/// @param path        image file path
+	/// @param disp_format 
+	/// @param use_dummy   if true create and return dummy image if loading failed, else return NULL on failure
+	SDL_Surface *loadImageFile(const char *path, bool disp_format = true, bool use_dummy = true){
 		string p = string(exepath) + "res/gfx/icons/" + path;
 	
 		SDL_RWops *file;
@@ -571,7 +558,7 @@ if(0);
 
 	//protected
 	//
-	SDL_Surface *loadImage_helper(SDL_Surface *img, bool use_dummy = true){
+	SDL_Surface *loadImage_helper(SDL_Surface *img, bool disp_format = true, bool use_dummy = true){
 		
 		if (img == NULL) {
 			if(use_dummy) {
@@ -579,7 +566,7 @@ if(0);
 				//create empty bitmap as dummy (with disabled alpha)
 				img = SDL_CreateRGBSurface(SDL_SWSURFACE, 8, 8, format.BitsPerPixel, format.Rmask, format.Gmask, format.Bmask, 0);
 				if (img  == NULL) {
-					cerr << "Error: " << SDL_GetError() << endl;
+					cerr << "SDL_CreateRGBSurface error: " << SDL_GetError() << endl;
 					return NULL;
 				}
 				SDL_FillRect(img, NULL, SDL_MapRGB(&format, 255, 0, 255));  //fill with signal color
@@ -587,24 +574,24 @@ if(0);
 			else
 				return NULL;
 		}
-		//SDL deactivates alpha channel in BMP surface -> just add the alpha channel mask and it works
-		#if SDL_BYTEORDER == SDL_BIG_ENDIAN
-			img->format->Amask = 0x000000ff;
-		#else
-			img->format->Amask = 0xff000000;
-		#endif
+		//SDL deactivates alpha channel in 32 bit BMP surface -> just add the alpha channel mask and it works
+		if(img->format->BitsPerPixel == 32)
+			img->format->Amask = AMASK;
 		
-		SDL_Surface *img1 = SDL_DisplayFormatAlpha(img); //convert to display format for speedup
-		if(img1 == NULL) {
-			cerr << "loadImage: Image format conversion failed!" << endl;
-			return img;
+		if(disp_format){
+			SDL_Surface *img1 = SDL_DisplayFormatAlpha(img); //convert to display format for speedup
+			if(img1 == NULL) {
+				cerr << "loadImage: Image format conversion failed!" << endl;
+				return img;
+			}
+			if(img->format->BitsPerPixel <= 24) //disable mask, if original has no mask
+				img1->format->Amask = 0;
+			
+			SDL_FreeSurface(img);
+			return img1;
 		}
-		if(img->format->BitsPerPixel <= 24) //disable mask, if original has no mask
-			img1->format->Amask = 0;
 		
-		//success
-		SDL_FreeSurface(img);
-		return img1;
+		return img;
 	}
 
 

@@ -16,7 +16,7 @@
 
 
 
-int SDLGuiFont::id_count = 0; //init static var
+
 SDLGui *guiPtr;
 
 
@@ -25,6 +25,8 @@ SDLGui *guiPtr;
 
 //to allow resizing instantly while dragging (under Windows, main drawing thread would stop)
 //SDL_VIDEOEXPOSE events are created when resizing
+//a forced resize via SDL_SetVideoMode
+//may run in a separate thread on some systems, not in MS Windows
 int eventFilterResize( const SDL_Event *e )
 {
     if( e->type == SDL_VIDEORESIZE )
@@ -42,6 +44,8 @@ int eventFilterResize( const SDL_Event *e )
 int ef(const SDL_Event *event){
 	cout << "event filter called" << endl;
 }
+
+
 
 //thread starter
 int runAppThread(void *objectRef){
@@ -111,7 +115,7 @@ cout << "returning from thread" << endl;
 
 void SDLGui::resizeWindow(int w, int h){
 	bool err = false;
-cout << "SDLGui::resizeWindow called: "<< w << " " << h << endl;
+	bool skip = false;
 
 	//make sure dimensions are valid
 	if(w <= 0 || h <= 0) {
@@ -121,21 +125,34 @@ cout << "SDLGui::resizeWindow called: "<< w << " " << h << endl;
 	}
 
 	SDL_mutexP(mutex_screen);
+	
 		//at this point no other thread is allowed to access the old surface pointer anymore -> screen access only safe in a mutex
 		if (screen == NULL)
 			err = true;
+		else if(w == screen->w  &&  h == screen->h)
+			skip = true; //no need to resize
 		else {
-			screen = SDL_SetVideoMode(w, h, 0, screen->flags);
-			if (screen == NULL)
+			screen = SDL_SetVideoMode(w, h, screen->format->BitsPerPixel, screen->flags);
+			if(screen == NULL) {
+				cerr << "Error: Resize video surface failed - " << SDL_GetError() << endl;
 				err = true;
+			}
 		}
-	resizeWindow_callback();
-	SDL_mutexV(mutex_screen);
-
+		
 	if(err){
-		cerr << "Error: Resize video surface failed" << SDL_GetError() << endl;
-		//exit(1);
+		cerr << "Retrying with save parameters ..." << endl;
+		//lets try to open a save window mode, maybe an unsupported fullscreen mode was requested before
+		screen = SDL_SetVideoMode(320, 240, 0, SDL_SWSURFACE | SDL_RESIZABLE);
+		if(screen == NULL) {
+			cerr << "Error: Resize video surface failed again - " << SDL_GetError() << endl;
+			cerr << "Program shall quit now" << endl;
+		}
 	}
+	
+	if(!skip)
+		resizeWindow_callback();
+	
+	SDL_mutexV(mutex_screen);
 }
 
 SDLGui::SDLGui(SDL_Surface *screen_, const string& exepath_){

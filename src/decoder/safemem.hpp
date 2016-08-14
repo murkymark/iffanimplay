@@ -82,7 +82,7 @@ class SafeMemory {
 	void copyFrom(  SafeMemory &to, int off_to, int off_from, int n);
 	
 	//check if memory access is within boundaries
-	inline virtual void check(void *mem, size_t size, void *from, size_t len, SafeMemoryException *e);
+	virtual void check(void *mem, size_t size, void *from, size_t len, SafeMemoryException *e);
 };
 
 

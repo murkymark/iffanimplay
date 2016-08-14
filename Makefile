@@ -71,8 +71,8 @@ BINDIR = bin
 LIBDIR = lib
 
 #binary output
-#BIN = $(BINDIR)/$(BINFILE)
-BIN = $(BINFILE)
+BIN = $(BINDIR)/$(BINFILE)
+#BIN = $(BINFILE)
 
 #library
 LIB1 = $(LIBDIR)/$(LIBFILE1)
@@ -81,10 +81,12 @@ LIB2 = $(LIBDIR)/$(LIBFILE2)
 
 #list of all files to compile (no )
 SRCS = \
+ src/gui/font_gohufont.c \
+ src/gui/font.cpp \
  src/gui/gui_event.cpp \
  src/gui/gui.cpp \
  src/gui/gui_widgets.cpp \
- src/gui/gui_surface.cpp\
+ src/gui/unisurface.cpp\
  src/player/player_gui.cpp \
  src/player/player_decwrapper.cpp \
  src/player/system_specific.cpp \

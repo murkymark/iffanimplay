@@ -1,6 +1,8 @@
 # iffanimplay
 Player and decoder library for IFF ANIM and CDXL animation file format, common on classic Amiga OS in the 1990s
 
+!!! NOTE: This repository is a (maybe outdated) cleaned snapshot of my local project directory, which is too messy at the moment !!!
+
 Project includes:
  * iffanimplay - video player (uses libSDL 1.2.x for video and audio, OpenGL optionally)
  * libiffanim - library for decoding IFF-ANIM video file format

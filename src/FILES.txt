@@ -1,21 +1,34 @@
 Source file overview
 --------------------
 
+Modules:
+ *gui - gui system based on SDL
+  font
+  unistring
+  unisurface
+ 
+ *player - main application module, connects to gui and libs
+ 
+ *decoder
+  libiffanimplay
+  libcdxl
+
+
 
 
 iffanimplay:
 ------------
-"main.cpp"       -  start of player, contains "main()" function
+"main.cpp" - start of player, contains "main()" function
 
-"player/player.cpp|.h"     -  player core
+"player/player.cpp|.h" -  player core
 
-"player/player_decwrapper.cpp" -  player class methods that wrap the loaders/decoder, hence separated from "player.cpp"
+"player/player_decwrapper.cpp" - player class methods that wrap the loaders/decoder, hence separated from "player.cpp"
 
-"player/player_gui.cpp|.h" -  window/graphical output and input (events)
+"player/player_gui.cpp|.h" - window/graphical output and input (events), derived from gui, adds player specific gui code
 
-"player/scale.c|.h"        -  generic scale functions
+"player/scale.c|.h" - generic scale functions
 
-"player/system_specific.h/cpp"  - OS dependent code
+"player/system_specific.h/cpp" - OS dependent code
 
 
 
@@ -29,9 +42,8 @@ decoders:
  "decoder\amiga_conv.c/.h"  - Generic Amiga related conversion functions (shared by CDXL and IffAnim decoders)
 
  "decoder\safemem.cpp/hpp" - makes sure all memory accesses stay inside allocated memory boundary (skip or throw exception upon illegal access)
-                      DLTA compressions use stored offsets/pointers which lead to crashes, if data is corrupt
+                      DLTA compressions use stored offsets/pointers which may lead to crashes if data is corrupt
                       includes byte order conversion methods
-
 
  CDXL:
   "decoder/cdxl/cdxl.cpp|.h"    - CDXL class
